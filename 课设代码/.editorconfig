@@ -1,0 +1,19 @@
+# root config
+root = true
+
+[*.{cpp,h}]
+# use utf-8
+charset = utf-8
+
+# indent style and size
+indent_style = tab
+indent_size = 4
+
+# crlf for a new line
+end_of_line = crlf
+
+# use final new line
+insert_final_newline = true
+
+# delete useless space
+trim_trailing_whitespace = true
