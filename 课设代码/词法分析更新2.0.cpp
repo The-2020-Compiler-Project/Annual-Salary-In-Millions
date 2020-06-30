@@ -8,7 +8,7 @@ using namespace std;
 #define kt_num 16//关键字表的大小
 #define s_pt_num 15//单字符界符表的大小
 #define token_num 400//token表的大小
-#define d_pt_num 3//双字符界符表的大小
+#define d_pt_num 5//双字符界符表的大小
 #define error_s -1 //错误状态
 #define end_s  0//结束状态
 //定义六种表的序号
@@ -35,7 +35,7 @@ vector<token> token_list;//保存词法分析所得的token串
                                         "*" ,"/" ,"{" ,"}" ,"," ,
                                         ";" ,"(" ,")" ,"[" ,"]" };
     //双字界符
-    string double_PT[d_pt_num]={ ">=","<=","==" };
+    string double_PT[d_pt_num]={ ">=","<=","==","&&","||"};
 //Token表定义
 class lexic
 {
