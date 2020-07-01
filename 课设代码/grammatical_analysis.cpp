@@ -1,4 +1,4 @@
-#include "header.h"
+#include "grammatical_analysis.h"
 // 对词法分析包装内函数的定义
 lexic_wrapper::lexic_wrapper()
 {
