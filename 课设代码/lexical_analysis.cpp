@@ -276,6 +276,7 @@ int lexic::token_code(int s_before, string value)
             }
         }
     }
+    // 此处需要增加一个返回值
 }
 void lexic::print_token()
 {

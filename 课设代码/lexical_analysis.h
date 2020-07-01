@@ -1,5 +1,8 @@
 //调试大于等于
-#include <bits/stdc++.h>
+#include <cstdio>
+#include <iostream>
+#include <string>
+#include <vector>
 using namespace std;
 //词法分析宏定义
 #define kt_num 16 //关键字表的大小

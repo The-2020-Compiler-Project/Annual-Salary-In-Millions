@@ -1,6 +1,6 @@
+#include <stack>
 #include <string>
 #include <vector>
-#include <stack>
 using namespace std;
 
 //按照实际进行修改
@@ -16,7 +16,7 @@ enum TVAL { Int,
     Double,
     String,
     Char,
-    Array};
+    Array };
 //类型表
 struct TYPEL {
     TVAL tval;
@@ -29,11 +29,10 @@ struct SYNBL {
     string name;
     TYPEL* TYPE;
     CAT cat;
-    int level;//作用域标号
-    void* addr;//改为偏移地址 注意数组类型的偏移地址有不确定性
+    int level; //作用域标号
+    void* addr; //改为偏移地址 注意数组类型的偏移地址有不确定性
 };
 vector<SYNBL> synbel_list;
-
 
 //数组表
 struct AINFL {
@@ -90,22 +89,23 @@ enum SIGN {
     add,
     sub,
     multi,
-    div,
+    div_,
     equal,
     not_equal,
     larger,
     smaller,
     larger_equal,
     smaller_equal,
-    and,
-    or};
+    and_,
+    or_
+};
 //操作符栈
 stack<SIGN> sign_stack;
 
 //操作数结构
 struct OPERAND {
     string name;
-    SYNBL *pointer;
+    SYNBL* pointer;
 };
 //对象栈
 stack<OPERAND> operand_stack;
@@ -116,5 +116,5 @@ struct QUATERNION {
     OPERAND operand_1;
     OPERAND operand_2;
     OPERAND operand_3;
-    };
+};
 vector<QUATERNION> quaternion_list;
