@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <stack>
 using namespace std;
 
 //按照实际进行修改
@@ -14,7 +15,8 @@ enum CAT { f,
 enum TVAL { Int,
     Double,
     String,
-    Char };
+    Char,
+    Array};
 //类型表
 struct TYPEL {
     TVAL tval;
@@ -27,9 +29,11 @@ struct SYNBL {
     string name;
     TYPEL* TYPE;
     CAT cat;
-    void* addr;
+    int level;//作用域标号
+    void* addr;//改为偏移地址 注意数组类型的偏移地址有不确定性
 };
 vector<SYNBL> synbel_list;
+
 
 //数组表
 struct AINFL {
@@ -75,3 +79,42 @@ struct IDENTIFY {
     TYPEL* tp;
     int level; //当前的作用域的层数 0为全局作用域 1为main作用域 当重作用域中返回的时候需要删除表
 };
+
+//已分配作用域标号
+int current_level;
+//作用域栈
+stack<int> current_level_stcak;
+
+//四元式符号
+enum SIGN {
+    add,
+    sub,
+    multi,
+    div,
+    equal,
+    not_equal,
+    larger,
+    smaller,
+    larger_equal,
+    smaller_equal,
+    and,
+    or};
+//操作符栈
+stack<SIGN> sign_stack;
+
+//操作数结构
+struct OPERAND {
+    string name;
+    SYNBL *pointer;
+};
+//对象栈
+stack<OPERAND> operand_stack;
+
+//四元式结构体
+struct QUATERNION {
+    SIGN sign;
+    OPERAND operand_1;
+    OPERAND operand_2;
+    OPERAND operand_3;
+    };
+vector<QUATERNION> quaternion_list;
