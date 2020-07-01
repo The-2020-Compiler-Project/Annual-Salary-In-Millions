@@ -6,7 +6,6 @@ private:
     bool isSuccess;
     lexic* lex;
     vector<token>::iterator position;
-
 public:
     lexic_wrapper();
     ~lexic_wrapper();
@@ -34,6 +33,7 @@ public:
     void declaration_2();
     void arrayInit();
     void assignment();
+	void error();
     void A();
     void B();
     void C();
