@@ -1,300 +1,334 @@
-//µ÷ÊÔ´óÓÚµÈÓÚ 
-#include <iostream>
+//è°ƒè¯•å¤§äºç­‰äº
 #include <cstdio>
 #include <cstdlib>
-#include <vector> 
+#include <iostream>
 #include <string>
+#include <vector>
 using namespace std;
-//´Ê·¨·ÖÎöºê¶¨Òå
-#define kt_num 16//¹Ø¼ü×Ö±íµÄ´óĞ¡
-#define s_pt_num 18//µ¥×Ö·û½ç·û±íµÄ´óĞ¡
-#define token_num 400//token±íµÄ´óĞ¡
-#define d_pt_num 6//Ë«×Ö·û½ç·û±íµÄ´óĞ¡
-#define error_s -1 //´íÎó×´Ì¬
-#define end_s  0//½áÊø×´Ì¬
-//¶¨ÒåÁùÖÖ±íµÄĞòºÅ
-#define iT 1//±êÊ¶·û 
-#define cT 2//×Ö·û 
-#define sT 3//×Ö·û´® 
-#define CT 4//³£Êı 
-#define KT 5//¹Ø¼ü×Ö 
-#define PT 6//½ç·û 
-struct token
-{
-    string token_value;//tokenÖµ
-    int token_code;//ĞòÁĞÂë
+//è¯æ³•åˆ†æå®å®šä¹‰
+#define kt_num 16 //å…³é”®å­—è¡¨çš„å¤§å°
+#define s_pt_num 18 //å•å­—ç¬¦ç•Œç¬¦è¡¨çš„å¤§å°
+#define token_num 400 //tokenè¡¨çš„å¤§å°
+#define d_pt_num 6 //åŒå­—ç¬¦ç•Œç¬¦è¡¨çš„å¤§å°
+#define error_s -1 //é”™è¯¯çŠ¶æ€
+#define end_s 0 //ç»“æŸçŠ¶æ€
+//å®šä¹‰å…­ç§è¡¨çš„åºå·
+#define iT 1 //æ ‡è¯†ç¬¦
+#define cT 2 //å­—ç¬¦
+#define sT 3 //å­—ç¬¦ä¸²
+#define CT 4 //å¸¸æ•°
+#define KT 5 //å…³é”®å­—
+#define PT 6 //ç•Œç¬¦
+struct token {
+    string token_value; //tokenå€¼
+    int token_code; //åºåˆ—ç 
 };
-vector<token> token_list;//±£´æ´Ê·¨·ÖÎöËùµÃµÄtoken´® 
-//****************¹Ø¼ü×Ö±í*******************
-    string K_T[kt_num] = { "int"   , "main"  , "void" , "if"    , "else",
-                            "return", "string", "float", "double", "case",
-                            "switch", "while" , "break", "bool"  , "char",
-                            "default" };
-//****************½ç·û±í*******************
-    //  µ¥×Ö½ç·û
-    string single_PT[s_pt_num]={ "=" ,">" ,"<" ,"+" ,"-" ,
-                                        "*" ,"/" ,"{" ,"}" ,"," ,
-                                        ";" ,"(" ,")" ,"[" ,"]","!" ,"&","|"};
-    //Ë«×Ö½ç·û
-    string double_PT[d_pt_num]={ ">=","<=","==","&&","||","!="};
-//Token±í¶¨Òå
-class lexic
-{
+vector<token> token_list; //ä¿å­˜è¯æ³•åˆ†ææ‰€å¾—çš„tokenä¸²
+//****************å…³é”®å­—è¡¨*******************
+string K_T[kt_num] = { "int", "main", "void", "if", "else",
+    "return", "string", "float", "double", "case",
+    "switch", "while", "break", "bool", "char",
+    "default" };
+//****************ç•Œç¬¦è¡¨*******************
+//  å•å­—ç•Œç¬¦
+string single_PT[s_pt_num] = { "=", ">", "<", "+", "-",
+    "*", "/", "{", "}", ",",
+    ";", "(", ")", "[", "]", "!", "&", "|" };
+//åŒå­—ç•Œç¬¦
+string double_PT[d_pt_num] = { ">=", "<=", "==", "&&", "||", "!=" };
+//Tokenè¡¨å®šä¹‰
+class lexic {
 public:
-      lexic(){ i_T_num=c_T_num=s_T_num=C_T_num=1;};
-      void open_file();//´ò¿ª²âÊÔÎÄ¼ş
-      void close_file();//¹Ø±Õ²âÊÔÎÄ¼şa
-    FILE *f =NULL;
-    //ÔËĞĞÖĞ×Ô¶¯Ìî³äµÄ±í
-    int i_T_num,c_T_num,s_T_num,C_T_num;//·Ö±ğÎªËÄ¸ö±í¼ÆÊı£»
-    bool lexic_analyze();//´Ê·¨·ÖÎöº¯Êı
-    int change_num(char buffer);//×Ö·û×ª»»³É´úºÅ
-    int s_change(int s_now,char buffer);//Í¨¹ıÓĞÏŞ×´Ì¬×Ô¶¯»úÊµÏÖ×´Ì¬µÄ×ª»»
-    int token_code(int s_before,string value);//Í¨¹ıËù´¦µÄ×´Ì¬£¬Éú³ÉtokenµÄĞòºÅ²¢´æ´¢µ½ÏàÓ¦µÄ±íÖĞ
-    int token_kind(int s_before,string value);//·µ»ØtokenËù´¦µÄÀàĞÍ
+    lexic() { i_T_num = c_T_num = s_T_num = C_T_num = 1; };
+    void open_file(); //æ‰“å¼€æµ‹è¯•æ–‡ä»¶
+    void close_file(); //å…³é—­æµ‹è¯•æ–‡ä»¶a
+    FILE* f = NULL;
+    //è¿è¡Œä¸­è‡ªåŠ¨å¡«å……çš„è¡¨
+    int i_T_num, c_T_num, s_T_num, C_T_num; //åˆ†åˆ«ä¸ºå››ä¸ªè¡¨è®¡æ•°ï¼›
+    bool lexic_analyze(); //è¯æ³•åˆ†æå‡½æ•°
+    int change_num(char buffer); //å­—ç¬¦è½¬æ¢æˆä»£å·
+    int s_change(int s_now, char buffer); //é€šè¿‡æœ‰é™çŠ¶æ€è‡ªåŠ¨æœºå®ç°çŠ¶æ€çš„è½¬æ¢
+    int token_code(int s_before, string value); //é€šè¿‡æ‰€å¤„çš„çŠ¶æ€ï¼Œç”Ÿæˆtokençš„åºå·å¹¶å­˜å‚¨åˆ°ç›¸åº”çš„è¡¨ä¸­
+    int token_kind(int s_before, string value); //è¿”å›tokenæ‰€å¤„çš„ç±»å‹
 };
 void lexic::open_file()
 {
-    f= fopen("²âÊÔ.txt", "r"); //  ½øĞĞ´ò¿ªÎÄ¼ş
-    if(f == NULL){
-        cout << "ÎÄ¼ş´ò¿ªÊ§°Ü£¡" << endl;
+    f = fopen("æµ‹è¯•.txt", "r"); //  è¿›è¡Œæ‰“å¼€æ–‡ä»¶
+    if (f == NULL) {
+        cout << "æ–‡ä»¶æ‰“å¼€å¤±è´¥ï¼" << endl;
         exit(0);
-    }
-    else
-    {
-        cout<<"ÎÄ¼ş´ò¿ª³É¹¦£¡"<<endl;
+    } else {
+        cout << "æ–‡ä»¶æ‰“å¼€æˆåŠŸï¼" << endl;
     }
 }
 void lexic::close_file()
 {
-     fclose(f); // ¹Ø±Õ´ò¿ªµÄÎÄ¼ş
+    fclose(f); // å…³é—­æ‰“å¼€çš„æ–‡ä»¶
 }
 bool lexic::lexic_analyze()
 {
     int kind;
-    int s_now=1,s_before;//µ±Ç°×´Ì¬ºÍÖ®Ç°×´Ì¬
-    int token_n=0;//token±íµÄÏÂ±ê
-    char buffer;//Ã¿´Î¶ÁÈëµÄ×Ö·û
+    int s_now = 1, s_before; //å½“å‰çŠ¶æ€å’Œä¹‹å‰çŠ¶æ€
+    int token_n = 0; //tokenè¡¨çš„ä¸‹æ ‡
+    char buffer; //æ¯æ¬¡è¯»å…¥çš„å­—ç¬¦
     token temp;
-    temp.token_value="";//³õÊ¼»¯Ò»ÏÂÁÙÊ±´æ·Åµ¥Ôª 
+    temp.token_value = ""; //åˆå§‹åŒ–ä¸€ä¸‹ä¸´æ—¶å­˜æ”¾å•å…ƒ
     buffer = fgetc(f);
-    while(buffer!= '#')
+    while (buffer != '#') {
+        s_before = s_now; //ä¿å­˜å‰ä¸€ä¸ªçŠ¶æ€
+        s_now = s_change(s_now, buffer); //çŠ¶æ€è½¬æ¢
+
+        if (s_now == error_s) //å‘ç”Ÿé”™è¯¯
         {
-            s_before = s_now;       		 //±£´æÇ°Ò»¸ö×´Ì¬
-            s_now = s_change(s_now,buffer);//×´Ì¬×ª»»
-
-            if(s_now == error_s)//·¢Éú´íÎó
-            {
-                cout<<"Ê¶±ğ×Ö·û:"<<buffer<<"Ê±·¢Éú´íÎó!"<<endl;//Óöµ½Ä³×Ö·ûÊ±·¢Éú´íÎó
-                return false;
-            }
-            else if(s_now == 13)	//×´Ì¬»ú¿ªÊ¼¼´¶Áµ½¿Õ¸ñ»ò»»ĞĞ
-            {
-                s_now = 1;
-            }
-            else if(s_now != end_s)  	//Î´µ½ÖÕÖ¹×´Ì¬
-            {
-                temp.token_value+= buffer;
-            }
-            else if(s_now == end_s)		//µ½ÖÕÖ¹×´Ì¬
-            {
-                temp.token_code = token_code(s_before,temp.token_value);//Éú³ÉtokenĞòÁĞÂë
-                token_list.push_back(temp);
-                fseek(f,-1,SEEK_CUR);
-                temp.token_value="";//ÖØĞÂ³õÊ¼»¯Ò»ÏÂÁÙÊ±±äÁ¿ 
-                s_now = 1;
-            }
-            else
-            {
-                cout<<"³öÏÖ·Ç·¨×´Ì¬£¡"<<endl;//¶Áµ½²»Õı³£µÄ×´Ì¬
-                return false;
-            }
-            buffer = fgetc(f);//¶ÁÈ¡ÏÂÒ»¸ö×Ö·û
+            cout << "è¯†åˆ«å­—ç¬¦:" << buffer << "æ—¶å‘ç”Ÿé”™è¯¯!" << endl; //é‡åˆ°æŸå­—ç¬¦æ—¶å‘ç”Ÿé”™è¯¯
+            return false;
+        } else if (s_now == 13) //çŠ¶æ€æœºå¼€å§‹å³è¯»åˆ°ç©ºæ ¼æˆ–æ¢è¡Œ
+        {
+            s_now = 1;
+        } else if (s_now != end_s) //æœªåˆ°ç»ˆæ­¢çŠ¶æ€
+        {
+            temp.token_value += buffer;
+        } else if (s_now == end_s) //åˆ°ç»ˆæ­¢çŠ¶æ€
+        {
+            temp.token_code = token_code(s_before, temp.token_value); //ç”Ÿæˆtokenåºåˆ—ç 
+            token_list.push_back(temp);
+            fseek(f, -1, SEEK_CUR);
+            temp.token_value = ""; //é‡æ–°åˆå§‹åŒ–ä¸€ä¸‹ä¸´æ—¶å˜é‡
+            s_now = 1;
+        } else {
+            cout << "å‡ºç°éæ³•çŠ¶æ€ï¼" << endl; //è¯»åˆ°ä¸æ­£å¸¸çš„çŠ¶æ€
+            return false;
         }
-        s_before = s_now;
+        buffer = fgetc(f); //è¯»å–ä¸‹ä¸€ä¸ªå­—ç¬¦
+    }
+    s_before = s_now;
     return true;
-
-
 }
 int lexic::change_num(char buffer)
-{//½«×Ö·û×ª»¯ÎªÏàÓ¦µÄ´úºÅ
+{ //å°†å­—ç¬¦è½¬åŒ–ä¸ºç›¸åº”çš„ä»£å·
     int n;
-    if((buffer >= 'a' && buffer <= 'z')||(buffer >= 'A' && buffer <= 'Z')) n = 1;
-    else if(buffer >= '0' && buffer <= '9') n = 2;
-    else if(buffer == '.') n = 3;
-    else if(buffer == ' '||buffer == '\n'||buffer == '\t') n= 4;//¿Õ¸ñ»ò»»ĞĞ»òtab
-    else if(buffer == 39) n = 5;//''
-    else if(buffer == 34) n = 6;//""
-    else if(buffer == '>') n = 7;//Ë«×Ö·û½ç·û
-    else if(buffer == '<') n = 8;//Ë«×Ö·û½ç·û
-    else if(buffer == '=') n = 9;//Ë«×Ö·û½ç·û         //ĞÂÔöÒ»Ğ©·ûºÅÊ¶±ğ 
-    else if(buffer == '!') n = 11;//"!=" 
-    else if(buffer == '|') n=12;//"||"
-    else if(buffer == '&') n=13;//"&&"
-    else n= 10;
+    if ((buffer >= 'a' && buffer <= 'z') || (buffer >= 'A' && buffer <= 'Z'))
+        n = 1;
+    else if (buffer >= '0' && buffer <= '9')
+        n = 2;
+    else if (buffer == '.')
+        n = 3;
+    else if (buffer == ' ' || buffer == '\n' || buffer == '\t')
+        n = 4; //ç©ºæ ¼æˆ–æ¢è¡Œæˆ–tab
+    else if (buffer == 39)
+        n = 5; //''
+    else if (buffer == 34)
+        n = 6; //""
+    else if (buffer == '>')
+        n = 7; //åŒå­—ç¬¦ç•Œç¬¦
+    else if (buffer == '<')
+        n = 8; //åŒå­—ç¬¦ç•Œç¬¦
+    else if (buffer == '=')
+        n = 9; //åŒå­—ç¬¦ç•Œç¬¦         //æ–°å¢ä¸€äº›ç¬¦å·è¯†åˆ«
+    else if (buffer == '!')
+        n = 11; //"!="
+    else if (buffer == '|')
+        n = 12; //"||"
+    else if (buffer == '&')
+        n = 13; //"&&"
+    else
+        n = 10;
     return n;
-
 }
-int lexic::s_change(int s_now,char buffer)
-{//Í¨¹ı×Ô¶¯»úÀ´ÊµÏÖ×´Ì¬×ª»»
-    int n,s_next;
-    n=change_num(buffer);
-    switch(s_now)
-        {
-        case 1:
-            if(n == 1) s_next = 2;
-            else if(n == 2) s_next = 3;
-            else if(n == 5) s_next= 6;
-            else if(n== 6)  s_next = 9;
-            else if(n == 7) s_next = 12;	//Ë«×Ö·û½ç·û">=" 
-            else if(n == 8) s_next = 14;	//Ë«×Ö·û½ç·û
-            else if(n == 9) s_next = 16;	//Ë«×Ö·û½ç·û
-            else if(n== 10) s_next = 18; //µ¥×Ö·û½ç·û
-            else if(n == 4) s_next = 13;//¿ªÊ¼¶Áµ½¿Õ¸ñ»ò»»ĞĞ
-            else if(n== 11) s_next = 19;//"!="
-            else if(n==12) s_next=20;//"||"
-            else if(n==13)  s_next=21;//"&&"
-            else s_next = error_s;//ÊµÏÖ±¨´í¹¦ÄÜ
-            break;
-        case 2:
-            if((n== 1)||(n == 2)||(buffer == 95)) s_next = 2;//±êÊ¶·û×ÖÄ¸¿ªÍ·-×ÖÄ¸Êı×ÖÏÂ»®Ïß×é³É
-            else s_next = 0;
-            break;
-        case 3:
-            if(n == 2) s_next = 3; //ÕûÊı
-            else if(n == 3) s_next = 4;//Ğ¡Êı
-            else if((n == 4)||(n == 7)||(n == 8)||(n == 9)||(n == 10)) s_next = 0;//Óöµ½½ç·û»ò¿Õ¸ñ»ò»»ĞĞÍ£Ö¹
-            else s_next = error_s;
-            break;
-        case 4:
-            if(n == 2) s_next = 5;
-            else s_next = error_s;
-            break;
-        case 5:
-            if(n== 2) s_next=5;
-            else if((n == 4)||(n== 7)||(n== 8)||(n== 9)||(n== 10)) s_next = 0;//Óöµ½½ç·û»ò¿Õ¸ñ»ò»»ĞĞÍ£Ö¹
-            else s_next = error_s;
-            break;
-        case 6:
-            if(n== 1) s_next = 7;
-            else s_next = error_s;
-            break;
-        case 7:
-            if(n== 5) s_next = 8;
-            else s_next = -1;
-            break;
-        case 8:
+int lexic::s_change(int s_now, char buffer)
+{ //é€šè¿‡è‡ªåŠ¨æœºæ¥å®ç°çŠ¶æ€è½¬æ¢
+    int n, s_next;
+    n = change_num(buffer);
+    switch (s_now) {
+    case 1:
+        if (n == 1)
+            s_next = 2;
+        else if (n == 2)
+            s_next = 3;
+        else if (n == 5)
+            s_next = 6;
+        else if (n == 6)
+            s_next = 9;
+        else if (n == 7)
+            s_next = 12; //åŒå­—ç¬¦ç•Œç¬¦">="
+        else if (n == 8)
+            s_next = 14; //åŒå­—ç¬¦ç•Œç¬¦
+        else if (n == 9)
+            s_next = 16; //åŒå­—ç¬¦ç•Œç¬¦
+        else if (n == 10)
+            s_next = 18; //å•å­—ç¬¦ç•Œç¬¦
+        else if (n == 4)
+            s_next = 13; //å¼€å§‹è¯»åˆ°ç©ºæ ¼æˆ–æ¢è¡Œ
+        else if (n == 11)
+            s_next = 19; //"!="
+        else if (n == 12)
+            s_next = 20; //"||"
+        else if (n == 13)
+            s_next = 21; //"&&"
+        else
+            s_next = error_s; //å®ç°æŠ¥é”™åŠŸèƒ½
+        break;
+    case 2:
+        if ((n == 1) || (n == 2) || (buffer == 95))
+            s_next = 2; //æ ‡è¯†ç¬¦å­—æ¯å¼€å¤´-å­—æ¯æ•°å­—ä¸‹åˆ’çº¿ç»„æˆ
+        else
             s_next = 0;
-            break;
-        case 9:
-            if(n== 1) s_next = 10;
-            else s_next = -1;
-            break;
-        case 10:
-            if(n == 1) s_next = 10;
-            else if(n == 6) s_next = 11;
-            else s_next=-1;  //×Ö·û´®Ö»ÓĞ×ÖÄ¸
-            break;
-        case 11:
+        break;
+    case 3:
+        if (n == 2)
+            s_next = 3; //æ•´æ•°
+        else if (n == 3)
+            s_next = 4; //å°æ•°
+        else if ((n == 4) || (n == 7) || (n == 8) || (n == 9) || (n == 10))
+            s_next = 0; //é‡åˆ°ç•Œç¬¦æˆ–ç©ºæ ¼æˆ–æ¢è¡Œåœæ­¢
+        else
+            s_next = error_s;
+        break;
+    case 4:
+        if (n == 2)
+            s_next = 5;
+        else
+            s_next = error_s;
+        break;
+    case 5:
+        if (n == 2)
+            s_next = 5;
+        else if ((n == 4) || (n == 7) || (n == 8) || (n == 9) || (n == 10))
+            s_next = 0; //é‡åˆ°ç•Œç¬¦æˆ–ç©ºæ ¼æˆ–æ¢è¡Œåœæ­¢
+        else
+            s_next = error_s;
+        break;
+    case 6:
+        if (n == 1)
+            s_next = 7;
+        else
+            s_next = error_s;
+        break;
+    case 7:
+        if (n == 5)
+            s_next = 8;
+        else
+            s_next = -1;
+        break;
+    case 8:
+        s_next = 0;
+        break;
+    case 9:
+        if (n == 1)
+            s_next = 10;
+        else
+            s_next = -1;
+        break;
+    case 10:
+        if (n == 1)
+            s_next = 10;
+        else if (n == 6)
+            s_next = 11;
+        else
+            s_next = -1; //å­—ç¬¦ä¸²åªæœ‰å­—æ¯
+        break;
+    case 11:
+        s_next = 0;
+        break;
+    case 12:
+        if (n == 9)
+            s_next = 15; //>=   //åªè¦è°ƒåˆ°ç›¸åº”çš„ç©ºå¤„ï¼Œä½¿å¾—çŠ¶æ€æœºå¢åŠ ä¸€ä¸ªçŠ¶æ€å³å¯ã€‚
+        else
             s_next = 0;
-            break;
-        case 12:
-            if(n == 9) s_next = 15;//>=   //Ö»Òªµ÷µ½ÏàÓ¦µÄ¿Õ´¦£¬Ê¹µÃ×´Ì¬»úÔö¼ÓÒ»¸ö×´Ì¬¼´¿É¡£ 
-            else s_next = 0;
-            break;
-        case 13:
+        break;
+    case 13:
+        s_next = 0;
+        break;
+    case 14:
+        if (n == 9)
+            s_next = 15; //<=
+        else
             s_next = 0;
-            break;
-        case 14:
-            if(n == 9) s_next = 15;//<=
-            else s_next = 0;
-            break;
-        case 15:
+        break;
+    case 15:
+        s_next = 0;
+        break;
+    case 16:
+        if (n == 9)
+            s_next = 17; //==
+        else
             s_next = 0;
-            break;
-        case 16:
-            if(n == 9) s_next = 17;//==
-            else s_next = 0;
-            break;
-        case 17:
+        break;
+    case 17:
+        s_next = 0;
+        break;
+    case 18: //å•å­—ç¬¦ç•Œç¬¦
+        s_next = 0;
+        break;
+    case 19: //!=
+        if (n == 9)
+            s_next = 15; //!=   //åªè¦è°ƒåˆ°ç›¸åº”çš„ç©ºå¤„ï¼Œä½¿å¾—çŠ¶æ€æœºå¢åŠ ä¸€ä¸ªçŠ¶æ€å³å¯ã€‚
+        else
             s_next = 0;
-            break;
-        case 18://µ¥×Ö·û½ç·û
+        break;
+    case 20: //||
+        if (n == 12)
+            s_next = 15; //||   //åªè¦è°ƒåˆ°ç›¸åº”çš„ç©ºå¤„ï¼Œä½¿å¾—çŠ¶æ€æœºå¢åŠ ä¸€ä¸ªçŠ¶æ€å³å¯ã€‚
+        else
             s_next = 0;
-            break;
-        case 19://!=
-           if(n == 9) s_next = 15;//!=   //Ö»Òªµ÷µ½ÏàÓ¦µÄ¿Õ´¦£¬Ê¹µÃ×´Ì¬»úÔö¼ÓÒ»¸ö×´Ì¬¼´¿É¡£ 
-            else s_next = 0;
-            break;
-        case 20://||
-           if(n == 12) s_next = 15;//||   //Ö»Òªµ÷µ½ÏàÓ¦µÄ¿Õ´¦£¬Ê¹µÃ×´Ì¬»úÔö¼ÓÒ»¸ö×´Ì¬¼´¿É¡£ 
-            else s_next = 0;
-            break;
-        case 21://&&
-            if(n == 13) s_next = 15;//&&   //Ö»Òªµ÷µ½ÏàÓ¦µÄ¿Õ´¦£¬Ê¹µÃ×´Ì¬»úÔö¼ÓÒ»¸ö×´Ì¬¼´¿É¡£ 
-            else s_next = 0;
-            break;
-        default:
-            cout << endl << "³öÏÖÎŞ·¨Ê¶±ğµÄ×Ö·û£º '"<<buffer<<endl;//Óöµ½ÎŞ·¨Ê¶±ğµÄ×Ö·û
-            break;
-        }
-        return s_next;
+        break;
+    case 21: //&&
+        if (n == 13)
+            s_next = 15; //&&   //åªè¦è°ƒåˆ°ç›¸åº”çš„ç©ºå¤„ï¼Œä½¿å¾—çŠ¶æ€æœºå¢åŠ ä¸€ä¸ªçŠ¶æ€å³å¯ã€‚
+        else
+            s_next = 0;
+        break;
+    default:
+        cout << endl
+             << "å‡ºç°æ— æ³•è¯†åˆ«çš„å­—ç¬¦ï¼š '" << buffer << endl; //é‡åˆ°æ— æ³•è¯†åˆ«çš„å­—ç¬¦
+        break;
+    }
+    return s_next;
 }
-int lexic::token_code(int s_before,string value)
+int lexic::token_code(int s_before, string value)
 {
-    int i=0;
-    if(s_before == 2)
-    {
-        for(i = 0; i < kt_num; i++)
-        {
-            if(K_T[i].compare(value) == 0)
-            {
-                return KT;//³É¹¦Æ¥Åäµ½£¬ÊÇ¹Ø¼ü×Ö 
+    int i = 0;
+    if (s_before == 2) {
+        for (i = 0; i < kt_num; i++) {
+            if (K_T[i].compare(value) == 0) {
+                return KT; //æˆåŠŸåŒ¹é…åˆ°ï¼Œæ˜¯å…³é”®å­—
             }
         }
-        return iT;//Î´²éµ½µÄ»°ÔòÎª±êÊ¶·û 
-    }
-    else if((s_before == 5)||(s_before == 3)) return CT;
-    else if(s_before == 8)  return cT;
-    else if(s_before == 11) return sT;
-    else if((s_before == 13)||(s_before == 15)||(s_before == 17))
-    {//Í³Ò»µ½½ç·û±íÖĞÈ¥²é
-        for(i = 0; i < d_pt_num; i++)
-        {
-            if(double_PT[i].compare(value) == 0)
-            {
+        return iT; //æœªæŸ¥åˆ°çš„è¯åˆ™ä¸ºæ ‡è¯†ç¬¦
+    } else if ((s_before == 5) || (s_before == 3))
+        return CT;
+    else if (s_before == 8)
+        return cT;
+    else if (s_before == 11)
+        return sT;
+    else if ((s_before == 13) || (s_before == 15) || (s_before == 17)) { //ç»Ÿä¸€åˆ°ç•Œç¬¦è¡¨ä¸­å»æŸ¥
+        for (i = 0; i < d_pt_num; i++) {
+            if (double_PT[i].compare(value) == 0) {
+                return PT;
+            }
+        }
+    } else if ((s_before == 12) || (s_before == 14) || (s_before == 16) || (s_before == 18) || (s_before == 19) || (s_before == 20) || (s_before == 21)) { //ç»Ÿä¸€åˆ°å•ç•Œç¬¦è¡¨ä¸­å»æŸ¥
+        for (i = 0; i < s_pt_num; i++) {
+            if (single_PT[i].compare(value) == 0) {
                 return PT;
             }
         }
     }
-    else if((s_before == 12)||(s_before == 14)||(s_before ==16)||(s_before == 18)||(s_before == 19)||(s_before == 20)||(s_before == 21))
-    {//Í³Ò»µ½µ¥½ç·û±íÖĞÈ¥²é
-        for(i = 0; i < s_pt_num; i++)
-        {
-            if(single_PT[i].compare(value) == 0)
-            {
-                return PT;
-            }
-        }
-    }
-
 }
 int main()
 {
     bool test;
     lexic a;
     a.open_file();
-    test=a.lexic_analyze();
+    test = a.lexic_analyze();
     a.close_file();
-    if(test)
-        cout<<"´Ê·¨·ÖÎö³É¹¦£¡"<<endl;
+    if (test)
+        cout << "è¯æ³•åˆ†ææˆåŠŸï¼" << endl;
     else
-        cout<<"´Ê·¨·ÖÎöÊ§°Ü£¡"<<endl;
-    cout<<endl;
-    for(auto it=token_list.begin();it!=token_list.end();it++)
-    {
-    	cout<<"<"<<(*it).token_code<<","<<(*it).token_value<<">"<<endl;
-	}
+        cout << "è¯æ³•åˆ†æå¤±è´¥ï¼" << endl;
+    cout << endl;
+    for (auto it = token_list.begin(); it != token_list.end(); it++) {
+        cout << "<" << (*it).token_code << "," << (*it).token_value << ">" << endl;
+    }
     return 0;
 }
-

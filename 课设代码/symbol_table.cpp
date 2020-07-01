@@ -2,74 +2,76 @@
 #include <vector>
 using namespace std;
 
-//°´ÕÕÊµ¼Ê½øĞĞĞŞ¸Ä
-enum CAT {f,c,t,d,v,vn,vf};
-//°´ÕÕÊµ¼Ê½øĞĞĞŞ¸Ä
-enum TVAL {Int,Double,String,Char};
-//ÀàĞÍ±í
-struct TYPEL
-{
-	TVAL tval;
-	void* tpoint;
+//æŒ‰ç…§å®é™…è¿›è¡Œä¿®æ”¹
+enum CAT { f,
+    c,
+    t,
+    d,
+    v,
+    vn,
+    vf };
+//æŒ‰ç…§å®é™…è¿›è¡Œä¿®æ”¹
+enum TVAL { Int,
+    Double,
+    String,
+    Char };
+//ç±»å‹è¡¨
+struct TYPEL {
+    TVAL tval;
+    void* tpoint;
 };
 vector<TYPEL> typel_list;
 
-//×Ü±í
-struct SYNBL
-{
-	string name;
-	TYPEL* TYPE;
-	CAT cat;
-	void* addr;
+//æ€»è¡¨
+struct SYNBL {
+    string name;
+    TYPEL* TYPE;
+    CAT cat;
+    void* addr;
 };
 vector<SYNBL> synbel_list;
 
-//Êı×é±í
-struct AINFL
-{
-	int low;
-	int up;
-	TYPEL* ctp;
-	int clen;
+//æ•°ç»„è¡¨
+struct AINFL {
+    int low;
+    int up;
+    TYPEL* ctp;
+    int clen;
 };
 vector<AINFL> ainfl_list;
 
-//½á¹¹±í ÔİÊ±ÓÃ²»µ½
-struct RINFL
-{
-	string name;
-	int off;
-	TYPEL* tp;
+//ç»“æ„è¡¨ æš‚æ—¶ç”¨ä¸åˆ°
+struct RINFL {
+    string name;
+    int off;
+    TYPEL* tp;
 };
 vector<RINFL> rinfl_list;
 
-//ĞÎ²Î±í
-struct FPL
-{
-	string name;
-	TYPEL *tp;
-	CAT cat;
-	int level; //¶ÔÓ¦»î¶¯¼ÇÂ¼ÖĞµÄµÚ¼¸²ã
-	int off; //¶ÔÓ¦µÄÆ«ÒÆµØÖ·
+//å½¢å‚è¡¨
+struct FPL {
+    string name;
+    TYPEL* tp;
+    CAT cat;
+    int level; //å¯¹åº”æ´»åŠ¨è®°å½•ä¸­çš„ç¬¬å‡ å±‚
+    int off; //å¯¹åº”çš„åç§»åœ°å€
 };
 vector<FPL> fpl_list;
 
-//º¯Êı±í
-struct PFINFL
-{
-	int level;
-	int off;
-	int FN;
-	long ENTRY;
-	FPL *fpl_pointer;
-	int data_long;//¸Ãº¯ÊıÖĞĞèÒª¿ª±ÙµÄ¿Õ¼äµÄ´óĞ¡ ÎªÁËÄ¿±ê´úÂëÉú³É·şÎñ
+//å‡½æ•°è¡¨
+struct PFINFL {
+    int level;
+    int off;
+    int FN;
+    long ENTRY;
+    FPL* fpl_pointer;
+    int data_long; //è¯¥å‡½æ•°ä¸­éœ€è¦å¼€è¾Ÿçš„ç©ºé—´çš„å¤§å° ä¸ºäº†ç›®æ ‡ä»£ç ç”ŸæˆæœåŠ¡
 };
 vector<PFINFL> pfinfl_list;
 
-//±êÊ¶·û±í ÎªÁË·½±ãÅĞ¶ÏÊÇ·ñÖØ¶¨ÒåÒÔ¼°ÀàĞÍÊÇ·ñÆ¥Åä ¶îÍâÉèÁ¢Ò»¸ö±êÊ¶·û±í
-struct IDENTIFY
-{
-	string name;
-	TYPEL *tp;
-	int level;//µ±Ç°µÄ×÷ÓÃÓòµÄ²ãÊı 0ÎªÈ«¾Ö×÷ÓÃÓò 1Îªmain×÷ÓÃÓò µ±ÖØ×÷ÓÃÓòÖĞ·µ»ØµÄÊ±ºòĞèÒªÉ¾³ı±í
+//æ ‡è¯†ç¬¦è¡¨ ä¸ºäº†æ–¹ä¾¿åˆ¤æ–­æ˜¯å¦é‡å®šä¹‰ä»¥åŠç±»å‹æ˜¯å¦åŒ¹é… é¢å¤–è®¾ç«‹ä¸€ä¸ªæ ‡è¯†ç¬¦è¡¨
+struct IDENTIFY {
+    string name;
+    TYPEL* tp;
+    int level; //å½“å‰çš„ä½œç”¨åŸŸçš„å±‚æ•° 0ä¸ºå…¨å±€ä½œç”¨åŸŸ 1ä¸ºmainä½œç”¨åŸŸ å½“é‡ä½œç”¨åŸŸä¸­è¿”å›çš„æ—¶å€™éœ€è¦åˆ é™¤è¡¨
 };
