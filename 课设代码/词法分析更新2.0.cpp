@@ -1,3 +1,4 @@
+//调试大于等于 
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
@@ -6,9 +7,9 @@
 using namespace std;
 //词法分析宏定义
 #define kt_num 16//关键字表的大小
-#define s_pt_num 15//单字符界符表的大小
+#define s_pt_num 18//单字符界符表的大小
 #define token_num 400//token表的大小
-#define d_pt_num 5//双字符界符表的大小
+#define d_pt_num 6//双字符界符表的大小
 #define error_s -1 //错误状态
 #define end_s  0//结束状态
 //定义六种表的序号
@@ -33,9 +34,9 @@ vector<token> token_list;//保存词法分析所得的token串
     //  单字界符
     string single_PT[s_pt_num]={ "=" ,">" ,"<" ,"+" ,"-" ,
                                         "*" ,"/" ,"{" ,"}" ,"," ,
-                                        ";" ,"(" ,")" ,"[" ,"]" };
+                                        ";" ,"(" ,")" ,"[" ,"]","!" ,"&","|"};
     //双字界符
-    string double_PT[d_pt_num]={ ">=","<=","==","&&","||"};
+    string double_PT[d_pt_num]={ ">=","<=","==","&&","||","!="};
 //Token表定义
 class lexic
 {
@@ -75,6 +76,7 @@ bool lexic::lexic_analyze()
     int token_n=0;//token表的下标
     char buffer;//每次读入的字符
     token temp;
+    temp.token_value="";//初始化一下临时存放单元 
     buffer = fgetc(f);
     while(buffer!= '#')
         {
@@ -97,8 +99,8 @@ bool lexic::lexic_analyze()
             else if(s_now == end_s)		//到终止状态
             {
                 temp.token_code = token_code(s_before,temp.token_value);//生成token序列码
-                fseek(f,-1,SEEK_CUR);
                 token_list.push_back(temp);
+                fseek(f,-1,SEEK_CUR);
                 temp.token_value="";//重新初始化一下临时变量 
                 s_now = 1;
             }
@@ -125,7 +127,10 @@ int lexic::change_num(char buffer)
     else if(buffer == 34) n = 6;//""
     else if(buffer == '>') n = 7;//双字符界符
     else if(buffer == '<') n = 8;//双字符界符
-    else if(buffer == '=') n = 9;//双字符界符
+    else if(buffer == '=') n = 9;//双字符界符         //新增一些符号识别 
+    else if(buffer == '!') n = 11;//"!=" 
+    else if(buffer == '|') n=12;//"||"
+    else if(buffer == '&') n=13;//"&&"
     else n= 10;
     return n;
 
@@ -141,11 +146,14 @@ int lexic::s_change(int s_now,char buffer)
             else if(n == 2) s_next = 3;
             else if(n == 5) s_next= 6;
             else if(n== 6)  s_next = 9;
-            else if(n == 7) s_next = 12;	//双字符界符
+            else if(n == 7) s_next = 12;	//双字符界符">=" 
             else if(n == 8) s_next = 14;	//双字符界符
             else if(n == 9) s_next = 16;	//双字符界符
             else if(n== 10) s_next = 18; //单字符界符
             else if(n == 4) s_next = 13;//开始读到空格或换行
+            else if(n== 11) s_next = 19;//"!="
+            else if(n==12) s_next=20;//"||"
+            else if(n==13)  s_next=21;//"&&"
             else s_next = error_s;//实现报错功能
             break;
         case 2:
@@ -191,7 +199,7 @@ int lexic::s_change(int s_now,char buffer)
             s_next = 0;
             break;
         case 12:
-            if(n == 9) s_next = 13;//>=
+            if(n == 9) s_next = 15;//>=   //只要调到相应的空处，使得状态机增加一个状态即可。 
             else s_next = 0;
             break;
         case 13:
@@ -213,6 +221,18 @@ int lexic::s_change(int s_now,char buffer)
             break;
         case 18://单字符界符
             s_next = 0;
+            break;
+        case 19://!=
+           if(n == 9) s_next = 15;//!=   //只要调到相应的空处，使得状态机增加一个状态即可。 
+            else s_next = 0;
+            break;
+        case 20://||
+           if(n == 12) s_next = 15;//||   //只要调到相应的空处，使得状态机增加一个状态即可。 
+            else s_next = 0;
+            break;
+        case 21://&&
+            if(n == 13) s_next = 15;//&&   //只要调到相应的空处，使得状态机增加一个状态即可。 
+            else s_next = 0;
             break;
         default:
             cout << endl << "出现无法识别的字符： '"<<buffer<<endl;//遇到无法识别的字符
@@ -247,7 +267,7 @@ int lexic::token_code(int s_before,string value)
             }
         }
     }
-    else if((s_before == 12)||(s_before == 14)||(s_before ==16)||(s_before == 18))
+    else if((s_before == 12)||(s_before == 14)||(s_before ==16)||(s_before == 18)||(s_before == 19)||(s_before == 20)||(s_before == 21))
     {//统一到单界符表中去查
         for(i = 0; i < s_pt_num; i++)
         {
