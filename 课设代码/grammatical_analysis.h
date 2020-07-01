@@ -12,7 +12,7 @@ public:
     ~lexic_wrapper();
     token getToken();
 };
-// 词法分析类
+// 语法分析类
 class grammar {
 private:
     lexic_wrapper* lexic;
@@ -21,10 +21,12 @@ private:
 public:
     grammar();
     ~grammar();
+    void error();
     void getToken();
     void begin();
     void program();
     void type();
+    bool isType();
     void functionBody();
     void expression();
     void mathExpression();
