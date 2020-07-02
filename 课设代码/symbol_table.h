@@ -2,7 +2,6 @@
 #include <string>
 #include <vector>
 using namespace std;
-
 //按照实际进行修改
 enum CAT { f,
     c,
@@ -16,12 +15,14 @@ enum TVAL { Int,
     Double,
     String,
     Char,
+	Bool,
+	String,
 	Const_int,
 	Const_double,
 	Const_char,
 	Const_string,
     Array,
-	};
+	};//这部分是为了填符号表的时候确定相应的类型
 //类型表
 struct TYPEL {
     TVAL tval;
@@ -38,12 +39,14 @@ vector<string> const_string_list;
 //总表
 struct SYNBL {
     string name;
-    TYPEL* TYPE;
+    TYPEL TYPE;
     CAT cat;
     int level; //作用域标号
     void* addr; //改为偏移地址 注意数组类型的偏移地址有不确定性
 };
 vector<SYNBL> synbel_list;
+
+//长度表，自定义类型需要指过去
 
 //数组表
 struct AINFL {
@@ -91,10 +94,10 @@ struct IDENTIFY {
 };
 
 //已分配作用域标号
-int current_level;
+int current_level=0;
 //作用域栈
-stack<int> current_level_stcak;
-
+vector <int> current_level_stcak;//作用域栈，用来存储作用域。
+auto level_it =current_level_stcak.begin();//用来表示栈顶，便于释放元素
 //四元式符号
 enum SIGN {
     add,

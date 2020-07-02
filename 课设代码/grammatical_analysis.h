@@ -25,20 +25,20 @@ public:
     void getToken();
     void begin();
     void program();
-    void type();
+    int type();//修改用来返回相应的类型，供符号表的填写
     bool isType();
     void functionBody();
     void expression();
     void mathExpression();
     void logicExpression();
-    void declaration();
+    void declaration(int kind);//传入类型
     void declaration_1();
     void declaration_2();
     void arrayInit();
     void assignment();
     void A();
     void B();
-    void C();
+    void C(int kind,token temp);//传入标识和相应的类型
     void D();
     void E();
     void T();

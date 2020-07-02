@@ -1,4 +1,6 @@
 #include "grammatical_analysis.h"
+#include "symbol_table.h"
+//开始插入一些语义动作
 // 对词法分析包装内函数的定义
 lexic_wrapper::lexic_wrapper()
 {
@@ -54,7 +56,7 @@ void grammar::begin()
     }
 }
 void grammar::program()
-{
+{ current_level_stcak.push_back(current_level);//最外层的层次号为0
     if (w.token_code == KT && w.token_value == "void") {
         getToken();
         if (w.token_code == KT && w.token_value == "main") {
@@ -64,9 +66,14 @@ void grammar::program()
                 if (w.token_code == PT && w.token_value == ")") {
                     getToken();
                     if (w.token_code == PT && w.token_value == "{") {
+						current_level++;
+						level_it++;
+						current_level_stcak.push_back(current_level);//层次加一，入栈
                         getToken();
                         functionBody();
                         if (w.token_code == PT && w.token_value == "}") {
+							current_level_stcak.erase(level_it);//离开，之前压入的层次号
+                            level_it--;
                             getToken();
                             return;
                         } else {
@@ -86,10 +93,20 @@ void grammar::program()
         error();
     }
 }
-void grammar::type()
+int grammar::type()
 {
     if (w.token_code == KT) {
         if (w.token_value == "int" || w.token_value == "char" || w.token_value == "bool" || w.token_value == "string" || w.token_value == "double") {
+			if(w.token_value=="int" )
+			return Int;
+			else if(w.token_value =="char")
+			return Char;
+			else if(w.token_value == "bool")
+			return Bool;
+			else if(w.token_value == "string")
+			return String;
+			else if(w.token_value == "double" )
+			return Double;
             getToken();
         } else {
             error();
@@ -113,6 +130,7 @@ void grammar::functionBody()
 {
     if (w.token_code == iT) {
         getToken();
+
         A();
         functionBody();
     } else if (w.token_value == "if") {
@@ -166,9 +184,10 @@ void grammar::functionBody()
         } else {
             error();
         }
-    } else if (isType()) {
-        type();
-        declaration();
+    } else if (isType()) {//这部分用来判断开头是不是类型，为了填入符号表做准备
+        int kind;//用来传类型
+		kind=type();
+        declaration(kind);//传入相应的类型给声明,填写符号表
         functionBody();
     } else {
         return;
@@ -213,11 +232,12 @@ void grammar::logicExpression()
     mathExpression();
 }
 
-void grammar::declaration()
+void grammar::declaration(int kind)
 {
     if (w.token_code == iT) {
+		token temp=w;
         getToken();
-        C();
+        C(kind,temp);
         if (w.token_value == ";") {
             getToken();
         } else {
@@ -397,9 +417,16 @@ void grammar::B()
         }
     }
 }
-void grammar::C()
+void grammar::C(int kind,token temp)
 {
     if (w.token_code == PT && w.token_value == "[") {
+		//在此处填写符号表
+		SYNBL s_temp;
+		s_temp.name=temp.token_value;//变量的名字
+		s_temp.TYPE.tval=Int;
+		s_temp.cat = v;
+		s_temp.level= *level_it;
+		s_temp.addr = null
         getToken();
         mathExpression();
         if (w.token_code == PT && w.token_value == "]") {
