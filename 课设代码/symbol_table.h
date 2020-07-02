@@ -42,11 +42,13 @@ struct SYNBL {
     TYPEL TYPE;
     CAT cat;
     int level; //作用域标号
+    int offset_add;//偏移地址
     void* addr; //改为偏移地址 注意数组类型的偏移地址有不确定性
 };
 vector<SYNBL> synbel_list;
 
 //长度表，自定义类型需要指过去
+vector<int> LENL;
 
 //数组表
 struct AINFL {
