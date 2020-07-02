@@ -16,13 +16,24 @@ enum TVAL { Int,
     Double,
     String,
     Char,
-    Array };
+	Const_int,
+	Const_double,
+	Const_char,
+	Const_string,
+    Array,
+	};
 //类型表
 struct TYPEL {
     TVAL tval;
     void* tpoint;
 };
 vector<TYPEL> typel_list;
+
+//各个常数表
+vector<int> const_int_list;
+vector<float> const_float_list;
+vector<char> const_char_list;
+vector<string> const_string_list;
 
 //总表
 struct SYNBL {
@@ -118,3 +129,4 @@ struct QUATERNION {
     OPERAND operand_3;
 };
 vector<QUATERNION> quaternion_list;
+
