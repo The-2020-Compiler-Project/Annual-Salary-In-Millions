@@ -36,6 +36,5 @@ public:
     int s_change(int s_now, char buffer); //通过有限状态自动机实现状态的转换
     int token_code(int s_before, string value); //通过所处的状态，生成token的序号并存储到相应的表中
     int token_kind(int s_before, string value); //返回token所处的类型
-    void print_token();
     vector<token> token_list; //保存词法分析所得的token串
 };

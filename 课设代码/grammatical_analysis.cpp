@@ -3,7 +3,9 @@
 lexic_wrapper::lexic_wrapper()
 {
     lex = new lexic();
+    lex->open_file();
     isSuccess = lex->lexic_analyze();
+    lex->close_file();
     position = lex->token_list.begin();
 }
 lexic_wrapper::~lexic_wrapper()
@@ -17,9 +19,11 @@ token lexic_wrapper::getToken()
         position++;
         return result;
     } else {
-        return token { "", 0 };
+        token result = { "#", -1 };
+        return result;
     }
 }
+
 // 对语法分析类内函数的定义
 grammar::grammar()
 {
@@ -31,7 +35,7 @@ grammar::~grammar()
 }
 void grammar::error()
 {
-    cout << "unexpected word:" << w.token_value << endl;
+    cout << "unexpected word: " << w.token_value << endl;
     exit(1);
 }
 void grammar::getToken()
@@ -43,7 +47,8 @@ void grammar::begin()
     getToken();
     program();
     if (w.token_value == "#") {
-        cout << "finished,no error";
+        cout << "finished,no error" << endl;
+        return;
     } else {
         error();
     }
@@ -56,10 +61,18 @@ void grammar::program()
             getToken();
             if (w.token_code == PT && w.token_value == "(") {
                 getToken();
-                functionBody();
                 if (w.token_code == PT && w.token_value == ")") {
                     getToken();
-                    return;
+                    if (w.token_code == PT && w.token_value == "{") {
+                        getToken();
+                        functionBody();
+                        if (w.token_code == PT && w.token_value == "}") {
+                            getToken();
+                            return;
+                        } else {
+                            error();
+                        }
+                    }
                 } else {
                     error();
                 }
@@ -75,7 +88,7 @@ void grammar::program()
 }
 void grammar::type()
 {
-    if (w.token_code == PT) {
+    if (w.token_code == KT) {
         if (w.token_value == "int" || w.token_value == "char" || w.token_value == "bool" || w.token_value == "string" || w.token_value == "double") {
             getToken();
         } else {
@@ -88,7 +101,7 @@ void grammar::type()
 
 bool grammar::isType()
 {
-    if (w.token_code == PT) {
+    if (w.token_code == KT) {
         if (w.token_value == "int" || w.token_value == "char" || w.token_value == "bool" || w.token_value == "string" || w.token_value == "double") {
             return true;
         }
@@ -180,28 +193,24 @@ void grammar::mathExpression()
 
 void grammar::logicExpression()
 {
-    if (w.token_code == PT) {
-        if (w.token_value == ">") {
+    if (w.token_value == ">") {
 
-        } else if (w.token_value == "<") {
+    } else if (w.token_value == "<") {
 
-        } else if (w.token_value == ">=") {
+    } else if (w.token_value == ">=") {
 
-        } else if (w.token_value == "<=") {
+    } else if (w.token_value == "<=") {
 
-        } else if (w.token_value == "&&") {
+    } else if (w.token_value == "&&") {
 
-        } else if (w.token_value == "||") {
+    } else if (w.token_value == "||") {
 
-        } else if (w.token_value == "!=") {
-        } else {
-            error();
-        }
-        getToken();
-        mathExpression();
+    } else if (w.token_value == "!=") {
     } else {
         return;
     }
+    getToken();
+    mathExpression();
 }
 
 void grammar::declaration()
@@ -214,6 +223,8 @@ void grammar::declaration()
         } else {
             error();
         }
+    } else {
+        error();
     }
 }
 
@@ -222,12 +233,14 @@ void grammar::declaration_1()
     if (w.token_value == ",") {
         getToken();
         if (w.token_code == iT) {
+            getToken();
             declaration_1();
         } else {
             error();
         }
-    } else if (true) {
-        //判断是否是表达式
+    } else if (w.token_value == "=") {
+        getToken();
+        expression();
     }
 }
 
@@ -289,7 +302,6 @@ void grammar::assignment()
         expression();
         if (w.token_value == ";") {
             getToken();
-            return;
         } else {
             error();
         }
@@ -372,7 +384,7 @@ void grammar::A()
 }
 void grammar::B()
 {
-    if (w.token_code == iT && w.token_value == "else") {
+    if (w.token_code == KT && w.token_value == "else") {
         getToken();
         if (w.token_code == PT && w.token_value == "{") {
             getToken();

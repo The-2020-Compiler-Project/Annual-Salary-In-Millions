@@ -17,10 +17,10 @@ void lexic::open_file()
 {
     f = fopen("test.txt", "r"); //  进行打开文件
     if (f == NULL) {
-        cout << "文件打开失败！" << endl;
+        cout << "failed to open file." << endl;
         exit(0);
     } else {
-        cout << "文件打开成功！" << endl;
+        cout << "file opened successfully." << endl;
     }
 }
 void lexic::close_file()
@@ -277,26 +277,4 @@ int lexic::token_code(int s_before, string value)
         }
     }
     // 此处需要增加一个返回值
-}
-void lexic::print_token()
-{
-    for (auto it = token_list.begin(); it != token_list.end(); it++) {
-        cout << "<" << (*it).token_code << "," << (*it).token_value << ">" << endl;
-    }
-}
-
-int main()
-{
-    bool test;
-    lexic a;
-    a.open_file();
-    test = a.lexic_analyze();
-    a.close_file();
-    if (test)
-        cout << "词法分析成功！" << endl;
-    else
-        cout << "词法分析失败！" << endl;
-    cout << endl;
-    a.print_token();
-    return 0;
 }
