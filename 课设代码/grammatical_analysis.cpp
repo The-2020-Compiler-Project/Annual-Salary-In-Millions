@@ -290,8 +290,6 @@ void grammar::arrayInit()
         getToken();
         expression();
         arrayInit();
-    } else {
-        error();
     }
 }
 
