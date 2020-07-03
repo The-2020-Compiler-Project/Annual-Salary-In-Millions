@@ -17,7 +17,7 @@ class grammar {
 private:
     lexic_wrapper* lexic;
     token w;
-
+    char temp_operand[2]={'t','0'};
 public:
     grammar();
     ~grammar();
@@ -40,9 +40,11 @@ public:
     void B();
     void C(int kind,token temp);//传入标识和相应的类型
     void D();
-    void E();
-    void T();
-    void E1();
-    void F();
-    void T1();
+    void E();//完成
+    void T();//完成
+    void E1();//完成
+    void F();//存在索引bug
+    void T1();//完成
+	OPERAND operand_temp_produce();//产生临时变量
+	int change_to_int(string &s);//用于处理int形式填写符号表
 };
