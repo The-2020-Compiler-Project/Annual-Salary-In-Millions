@@ -49,6 +49,6 @@ public:
 	int change_to_int(string &s);//用于处理int形式填写符号表
     TYPEL type_deduction(TVAL tval_1,TVAL tval_2); //用来进行类型的推到
     int push_into_synbel_list(SYNBL synbel); //填写符号表并且返回位置
-    bool is_iT_defined(string it_name); //判断标识符是否已经定义了
+    int is_iT_defined(string it_name); //判断标识符是否已经定义了
     void push_into_const_int_double_list(OPERAND one,OPERAND two,OPERAND three,SIGN sign);//填写常数表，如果临时变量为常数，则需要额外填写常数表，目前还没有做bool型的
 };

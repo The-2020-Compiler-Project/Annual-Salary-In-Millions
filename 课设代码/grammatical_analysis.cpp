@@ -451,10 +451,11 @@ void grammar::T1()
 void grammar::F()
 {
     if (w.token_code == iT) {
-        if(!is_iT_defined(w.token_value)){
+        int position=is_iT_defined(w.token_value)
+        if(is_iT_defined(w.token_value)<0){
             error(w.token_value+" not defined");
         }
-
+        
         getToken();
 		//数组问题还没处理
         D();
@@ -593,23 +594,29 @@ int grammar::push_into_synbel_list(SYNBL synbel)
     return (int)synbl_list.size()-1;
 }
 
-//判断标识符是否合法
-bool grammar::is_iT_defined(string iT_name)
+//判断标识符是否已经定义 若定义了则返回符号表中的位置 没有定义返回 -1
+int grammar::is_iT_defined(string iT_name)
 {
+    int position=-1;
+    int current_level_=-1;
     for(unsigned i=0;i<synbl_list.size();i++){
         if(synbl_list[i].name==iT_name){
-            for(unsigned t=0;t<current_level_stcak.size();t++){
+            for(unsigned t=0;t<current_level_stcak.size();t--){
                 if(synbl_list[i].level==current_level_stcak[t]){
-                    return true;
+                    if(synbl_list[i].level>current_level_){ //优先返回深度更深的作用域的变量
+                        position=i;
+                        current_level_=synbl_list[i].level;
+                    }
+                    break;
                 }
             }
         }
     }
-    return false;
+    return position;
 }
 
 //填写常数表，如果临时变量为常数，则需要额外填写常数表，目前还没有做bool型的
-void grammer::push_into_const_int_double_list(OPERAND one,OPERAND two,OPERAND three,SIGN sign)
+void grammar::push_into_const_int_double_list(OPERAND one,OPERAND two,OPERAND three,SIGN sign)
 {
     double operand_3;
     int operand_1=const_int_double_list[synbl_list[one.position].addr.position];
