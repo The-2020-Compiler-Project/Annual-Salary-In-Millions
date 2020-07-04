@@ -451,14 +451,20 @@ void grammar::T1()
 void grammar::F()
 {
     if (w.token_code == iT) {
-        int position=is_iT_defined(w.token_value)
-        if(is_iT_defined(w.token_value)<0){
+        int position=is_iT_defined(w.token_value);
+        if(position<0){//若没有定义则进行报错
             error(w.token_value+" not defined");
         }
+        //压入符号栈
+        OPERAND iT_operand;
+        iT_operand.name=w.token_value;
+        iT_operand.position=position;
+        operand_stack.push(iT_operand);
         
         getToken();
-		//数组问题还没处理
+
         D();
+
     } else if (w.token_code == CT) {
 		SYNBL synbel_temp;
 		synbel_temp.name = w.token_value;//名字填的是常数的值
