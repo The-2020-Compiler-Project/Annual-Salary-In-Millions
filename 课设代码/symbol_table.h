@@ -16,12 +16,13 @@ enum TVAL { Int,
     String,
     Char,
 	Bool,
-	Const_int,
-	Const_double,
-	Const_char,
-	Const_string,
+	//Const_int,
+	//Const_double,  常量的信息在cat中表示 不需要再类型中额外表示
+	//Const_char,
+	//Const_string,
     Array,
-	};//这部分是为了填符号表的时候确定相应的类型
+    WRONG_TYPE//用于返回类型不匹配的
+    };//这部分是为了填符号表的时候确定相应的类型
 //类型表
 struct TYPEL {
     TVAL tval;
@@ -137,3 +138,5 @@ struct QUATERNION {
 };
 vector<QUATERNION> quaternion_list;
 
+//错误信息流
+vector<string> err_msg_list;

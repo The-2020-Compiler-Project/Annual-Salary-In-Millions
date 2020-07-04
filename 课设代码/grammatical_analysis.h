@@ -21,7 +21,7 @@ private:
 public:
     grammar();
     ~grammar();
-    void error();
+    void error(string err_msg);
     void getToken();
     void begin();
     void program();
@@ -47,4 +47,5 @@ public:
     void T1();//完成
 	OPERAND operand_temp_produce();//产生临时变量
 	int change_to_int(string &s);//用于处理int形式填写符号表
+    TYPEL type_deduction(TVAL tval_1,TVAL tval_2); //用来进行类型的推到
 };

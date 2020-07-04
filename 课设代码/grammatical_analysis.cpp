@@ -35,8 +35,9 @@ grammar::~grammar()
 {
     delete lexic;
 }
-void grammar::error()
+void grammar::error(string err_msg="")
 {
+    err_msg_list.push_back(err_msg);
     cout << "unexpected word: " << w.token_value << endl;
     exit(1);
 }
@@ -356,13 +357,26 @@ void grammar::E1()
 		two = operand_stack.top();
 	    operand_stack.pop();
 		one = operand_stack.top();
+
+        operand_stack.pop(); //是不是应该加一个操作数的弹出
+        
 		OPERAND operand_temp=operand_temp_produce();
 		SYNBL synbl_temp;//准备将临时变量填到符号表里
 		synbl_temp.name=operand_temp.name;
-        synbl_temp.TYPE=two.pointer->TYPE;//访问符号表，与第一，第二操作数的类型一致
-		synbl_temp.level=two.pointer->level;//地址问题先统一不处理
+
+        //synbl_temp.TYPE=two.pointer->TYPE;//访问符号表，与第一，第二操作数的类型一致
+        //结果的类型应该是通过两个操作数的类型进行推到
+        synbl_temp.TYPE=type_deduction(one.pointer->TYPE.tval,two.pointer->TYPE.tval);
+        if(synbl_temp.TYPE.tval==TVAL::WRONG_TYPE)
+            error("wrong type");
+            
+		//synbl_temp.level=two.pointer->level;//地址问题先统一不处理 
+        synbl_temp.level=current_level_stcak.back();//level应该是作用域
+
 		if(one.pointer->cat==c && two.pointer->cat==c)//只有两个操作数均为常数时，结果为常数，否则均为变量
-		synbl_temp.cat=c;
+		
+        synbl_temp.cat=c;//如果为常数应该指向常数表 //但是现在还没有完成分类 先统一按照int处理
+
 		else synbl_temp.cat=v;
 		synbel_it++;
 		operand_temp.pointer=synbel_it;
@@ -530,3 +544,29 @@ int grammar::change_to_int(string &s)
 	temp=atoi(s.c_str());
     return temp;
 }
+
+//用来进行类型的推到 目前仅支持int double bool的推到 char和string默认返回WRONG_TYPE
+TYPEL type_deduction(TVAL tval_1,TVAL tval_2)
+{
+    TVAL new_tval;
+    if(tval_1==TVAL::Int && tval_2==TVAL::Int)
+    {
+        new_tval=TVAL::Int;
+    }
+    else if((tval_1==TVAL::Int && tval_2==TVAL::Double)||(tval_1==TVAL::Double && tval_2==TVAL::Int)||(tval_1==TVAL::Double && tval_2==TVAL::Double))
+    {
+        new_tval=TVAL::Double;
+    }
+    else if((tval_1==TVAL::Bool && tval_2==TVAL::Bool))
+    {
+        new_tval=TVAL::Bool;
+    }
+    else
+    {
+        new_tval=TVAL::WRONG_TYPE;
+    }
+    TYPEL new_typel;
+    new_typel.tval=new_tval;
+    return new_typel;
+} 
+
