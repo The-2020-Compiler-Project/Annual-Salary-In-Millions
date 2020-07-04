@@ -626,7 +626,7 @@ void grammer::push_into_const_int_double_list(OPERAND one,OPERAND two,OPERAND th
     else if(sign==SIGN::multi){
         operand_3=operand_1*operand_1;
     }
-    synbl_list[three.position].addr.table=TABLE::const_int_doubl;
+    synbl_list[three.position].addr.table=TABLE::const_int_double;
     synbl_list[three.position].addr.position=const_int_double_list.size();
     const_int_double_list.push_back(operand_3);
 }
