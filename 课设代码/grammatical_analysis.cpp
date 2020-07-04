@@ -64,8 +64,10 @@ void grammar::begin()
         error();
     }
 }
+
 void grammar::program()
-{ current_level_stcak.push_back(current_level);//最外层的层次号为0
+{   current_level=0;
+    current_level_stcak.push_back(current_level);//最外层的层次号为0
     if (w.token_code == KT && w.token_value == "void") {
         getToken();
         if (w.token_code == KT && w.token_value == "main") {
@@ -76,13 +78,12 @@ void grammar::program()
                     getToken();
                     if (w.token_code == PT && w.token_value == "{") {
 						current_level++;
-						level_it++;
+						//level_it++; 迭代器失效
 						current_level_stcak.push_back(current_level);//层次加一，入栈
                         getToken();
                         functionBody();
                         if (w.token_code == PT && w.token_value == "}") {
-							current_level_stcak.erase(level_it);//离开，之前压入的层次号
-                            level_it--;
+							current_level_stcak.pop_back();
                             getToken();
                             return;
                         } else {
@@ -138,8 +139,21 @@ bool grammar::isType()
 void grammar::functionBody()
 {
     if (w.token_code == iT) {
-        getToken();
+        
+        
+        //判断是否定义了
+        int position=is_iT_defined(w.token_value);
+        if(position<0){//若没有定义则进行报错
+            error(w.token_value+" not defined");
+        }
 
+        //压入符号栈
+        OPERAND iT_operand;
+        iT_operand.name=w.token_value;
+        iT_operand.position=position;
+        operand_stack.push(iT_operand);
+
+        getToken();
         A();
         functionBody();
     } else if (w.token_value == "if") {
@@ -272,7 +286,6 @@ void grammar::declaration_1()
         expression();
     }
 }
-
 void grammar::declaration_2()
 {
     if (w.token_value == ",") {
@@ -312,7 +325,6 @@ void grammar::declaration_2()
         return;
     }
 }
-
 void grammar::arrayInit()
 {
     if (w.token_value == ",") {
@@ -321,12 +333,33 @@ void grammar::arrayInit()
         arrayInit();
     }
 }
-
 void grammar::assignment()
 {
     if (w.token_value == "=") {
         getToken();
         expression();
+
+        //获得操作数
+        OPERAND one=operand_stack.top();
+        operand_stack.pop();
+        OPERAND three=operand_stack.top();
+        operand_stack.pop();
+
+        //判断类型是否匹配
+        TYPEL typel=type_deduction(synbl_list[one.position].TYPE.tval,synbl_list[three.position].TYPE.tval);
+        if(typel.tval==TVAL::WRONG_TYPE){
+            error(one.name+" and "+three.name+" type mismatch");
+        }
+
+        //构建赋值四元式
+        QUATERNION quaternion;
+        quaternion.sign=SIGN::equal;
+        quaternion.operand_1=one;
+        quaternion.operand_3=three;
+        quaternion_list.push_back(quaternion);
+
+
+
         if (w.token_value == ";") {
             getToken();
         } else {
@@ -460,22 +493,45 @@ void grammar::F()
         iT_operand.name=w.token_value;
         iT_operand.position=position;
         operand_stack.push(iT_operand);
-        
+
         getToken();
 
         D();
 
     } else if (w.token_code == CT) {
-		SYNBL synbel_temp;
-		synbel_temp.name = w.token_value;//名字填的是常数的值
-		//先均当成int常数处理，等后期再分类
-		const_int_list.push_back(change_to_int(w.token_value));
-		synbel_temp.cat=c;//常量
-		synbel_temp.level=current_level_stcak.back();
-		synbel_temp.TYPE.tval=Int;
-		synbel_temp.addr=const_int_list_it;//void*指针和迭代器转换之间存在问题，未解决
-		OPERAND num;
-		num.name = w.token_value;
+
+        //判断常数的类型
+        TVAL CT_tval=CT_type_deduction(w.token_value);
+
+        //判断符号表中是否已经有该常数了
+        int position=0;
+        for(;position<synbl_list.size();position++){
+            if(synbl_list[position].name==w.token_value&&synbl_list[position].TYPE.tval==CT_tval)
+                break;
+        }
+
+        OPERAND CT_operand;
+        //已经在常数表中了则不需要填写符号表
+        if(position<synbl_list.size()){
+            //压入操作数栈
+            CT_operand.name=w.token_value;
+            CT_operand.position=position;
+            operand_stack.push(CT_operand);
+        }else{//不在符号表中则需要填写符号表
+            //填入符号表
+            SYNBL synbel_temp;
+		    synbel_temp.name = w.token_value;
+            synbel_temp.cat=CAT::c;
+            synbel_temp.level=0;
+            synbel_temp.TYPE.tval=CT_tval;
+            synbel_temp.addr.table=TABLE::const_int_double;
+            synbel_temp.addr.position=const_int_double_list.size();
+            const_int_double_list.push_back(atof(w.token_value.c_str()));
+            //压入操作数栈
+            CT_operand.name=w.token_value;
+            CT_operand.position=push_into_synbel_list(synbel_temp);
+            operand_stack.push(CT_operand);
+        }
         getToken();
     } else if (w.token_code == PT && w.token_value == "(") {
         getToken();
@@ -493,8 +549,50 @@ void grammar::F()
 void grammar::D()
 {
     if (w.token_code == PT && w.token_value == "[") {
+        //弹出操作数栈顶元素判断是否为数组类型
+        OPERAND iT_operand=operand_stack.top();
+        operand_stack.pop();
+        if(synbl_list[iT_operand.position].TYPE.tval!=TVAL::Array){
+            error(w.token_value+" is not array but used as array");
+        }
+
         getToken();
+
         mathExpression();
+
+        //弹出对象栈栈顶元素作为数组的下标 判断是否为整数和是否越界
+        OPERAND subscript_operand=operand_stack.top();
+        operand_stack.pop();
+        SYNBL subscript_synbel=synbl_list[subscript_operand.position];
+        if(subscript_synbel.TYPE.tval!=TVAL::Int){
+            error("subscrip is not integer");
+        }
+        //如果为常数可以判断是否越界
+        if(subscript_synbel.cat==CAT::c){
+            int ainfl_position=synbl_list[iT_operand.position].TYPE.addr.position;
+            int up_bound=ainfl_list[ainfl_position].up;
+            if(const_int_double_list[subscript_synbel.addr.position]>up_bound){
+                 error(iT_operand.name+" Array out of bounds");
+            }
+        }
+        
+        //数组元素操作填写符号表 构建数组元素的操作数并且压入对象栈
+        SYNBL array_element_synbl;
+        array_element_synbl.name=iT_operand.name+"["+subscript_operand.name+"]";
+        array_element_synbl.cat=CAT::v;
+        array_element_synbl.addr.table=TABLE::synbl;
+        array_element_synbl.addr.position=iT_operand.position;
+        array_element_synbl.level=current_level_stcak.back();
+        int anifl_position=synbl_list[iT_operand.position].TYPE.addr.position;
+        array_element_synbl.TYPE.tval=ainfl_list[anifl_position].tval;
+        OPERAND array_element_operand;
+        array_element_operand.name=array_element_synbl.name;
+        array_element_operand.position=push_into_synbel_list(array_element_synbl);
+        operand_stack.push(array_element_operand);
+
+        
+
+
         if (w.token_code == PT && w.token_value == "]") {
             getToken();
             return;
@@ -506,8 +604,47 @@ void grammar::D()
 void grammar::A()
 {
     if (w.token_code == PT && w.token_value == "[") {
+        //弹出操作数栈顶元素判断是否为数组类型
+        OPERAND iT_operand=operand_stack.top();
+        operand_stack.pop();
+        if(synbl_list[iT_operand.position].TYPE.tval!=TVAL::Array){
+            error(w.token_value+" is not array but used as array");
+        }
+
         getToken();
+
         mathExpression();
+
+        //弹出对象栈栈顶元素作为数组的下标 判断是否为整数和是否越界
+        OPERAND subscript_operand=operand_stack.top();
+        operand_stack.pop();
+        SYNBL subscript_synbel=synbl_list[subscript_operand.position];
+        if(subscript_synbel.TYPE.tval!=TVAL::Int){
+            error("subscrip is not integer");
+        }
+        //如果为常数可以判断是否越界
+        if(subscript_synbel.cat==CAT::c){
+            int ainfl_position=synbl_list[iT_operand.position].TYPE.addr.position;
+            int up_bound=ainfl_list[ainfl_position].up;
+            if(const_int_double_list[subscript_synbel.addr.position]>up_bound){
+                 error(iT_operand.name+" Array out of bounds");
+            }
+        }
+
+        //数组元素操作填写符号表 构建数组元素的操作数并且压入对象栈
+        SYNBL array_element_synbl;
+        array_element_synbl.name=iT_operand.name+"["+subscript_operand.name+"]";
+        array_element_synbl.cat=CAT::v;
+        array_element_synbl.addr.table=TABLE::synbl;
+        array_element_synbl.addr.position=iT_operand.position;
+        array_element_synbl.level=current_level_stcak.back();
+        int anifl_position=synbl_list[iT_operand.position].TYPE.addr.position;
+        array_element_synbl.TYPE.tval=ainfl_list[anifl_position].tval;
+        OPERAND array_element_operand;
+        array_element_operand.name=array_element_synbl.name;
+        array_element_operand.position=push_into_synbel_list(array_element_synbl);
+        operand_stack.push(array_element_operand);
+
         if (w.token_code == PT && w.token_value == "]") {
             getToken();
             assignment();
@@ -561,12 +698,7 @@ void grammar::C(int kind,token temp)
 	operand_stack.push(operand_temp);//标识符压入对象栈
     declaration_1();
 }
-int grammar::change_to_int(string &s)
-{
-	int temp;
-	temp=atoi(s.c_str());
-    return temp;
-}
+
 
 //用来进行类型的推到 目前仅支持int double bool的推到 char和string默认返回WRONG_TYPE
 TYPEL grammar::type_deduction(TVAL tval_1,TVAL tval_2)
@@ -642,4 +774,17 @@ void grammar::push_into_const_int_double_list(OPERAND one,OPERAND two,OPERAND th
     synbl_list[three.position].addr.table=TABLE::const_int_double;
     synbl_list[three.position].addr.position=const_int_double_list.size();
     const_int_double_list.push_back(operand_3);
+}
+
+//判断常数为double还是int类型
+TVAL grammar::CT_type_deduction(string str)
+{
+    int CT_int=atoi(str.c_str());
+    double CT_double=atof(str.c_str());
+    if(CT_int<CT_double){
+        return TVAL::Double;
+    }
+    else{
+        return TVAL::Int;
+    }
 }

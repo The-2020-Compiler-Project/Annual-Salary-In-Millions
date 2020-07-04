@@ -19,10 +19,24 @@ enum TVAL { Int,
     Array,
     WRONG_TYPE//用于返回类型不匹配的
     };//这部分是为了填符号表的时候确定相应的类型
+//总表和符号表中的addr的修正
+enum TABLE {
+    const_int_double,
+    const_char,
+    const_string,
+    lenl,
+    ainfl,
+    rinfl,
+    synbl
+    };
+struct ADDR{
+    TABLE table;
+    int position;
+};
 //类型表
 struct TYPEL {
     TVAL tval;
-    void* tpoint;
+    ADDR addr;
 };
 vector<TYPEL> typel_list;
 
@@ -33,17 +47,7 @@ vector<double> const_int_double_list;
 vector<char> const_char_list;
 vector<string> const_string_list;
 
-//总表中的addr的修正
-enum TABLE {
-    const_int_double,
-    const_char,
-    const_string,
-    lenl
-    };
-struct ADDR{
-    TABLE table;
-    int position;
-};
+
 
 //总表
 struct SYNBL {
@@ -66,7 +70,8 @@ vector<int> LENL;
 struct AINFL {
     int low;
     int up;
-    TYPEL* ctp;
+    int ctp; //没用复杂数据类型的时候暂时用不上
+    TVAL tval;
     int clen;
 };
 vector<AINFL> ainfl_list;

@@ -24,7 +24,7 @@ public:
     void error(string err_msg);
     void getToken();
     void begin();
-    void program();
+    void program();//完成
     int type();//修改用来返回相应的类型，供符号表的填写
     bool isType();
     void functionBody();
@@ -35,15 +35,15 @@ public:
     void declaration_1();
     void declaration_2();
     void arrayInit();
-    void assignment();
-    void A();
+    void assignment();//完成
+    void A();//完成
     void B();
     void C(int kind,token temp);//传入标识和相应的类型
-    void D();
+    void D();//完成
     void E();//完成
     void T();//完成
     void E1();//完成
-    void F();//存在索引bug 正在修复ing
+    void F();//完成
     void T1();//完成
 	OPERAND operand_temp_produce();//产生临时变量
 	int change_to_int(string &s);//用于处理int形式填写符号表
@@ -51,4 +51,5 @@ public:
     int push_into_synbel_list(SYNBL synbel); //填写符号表并且返回位置
     int is_iT_defined(string it_name); //判断标识符是否已经定义了
     void push_into_const_int_double_list(OPERAND one,OPERAND two,OPERAND three,SIGN sign);//填写常数表，如果临时变量为常数，则需要额外填写常数表，目前还没有做bool型的
+    TVAL CT_type_deduction(string str);//判断常数为double还是int类型
 };
