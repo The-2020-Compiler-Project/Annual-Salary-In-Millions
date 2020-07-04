@@ -16,10 +16,6 @@ enum TVAL { Int,
     String,
     Char,
 	Bool,
-	//Const_int,
-	//Const_double,  常量的信息在cat中表示 不需要再类型中额外表示
-	//Const_char,
-	//Const_string,
     Array,
     WRONG_TYPE//用于返回类型不匹配的
     };//这部分是为了填符号表的时候确定相应的类型
@@ -31,11 +27,23 @@ struct TYPEL {
 vector<TYPEL> typel_list;
 
 //各个常数表
-vector<int> const_int_list;
-vector<int>::iterator const_int_list_it =const_int_list.begin();//便于索引常数表中的内容
-vector<float> const_float_list;
+vector<double> const_int_double_list;
+//迭代器失效问题
+//vector<int>::iterator const_int_list_it =const_int_list.begin();//便于索引常数表中的内容
 vector<char> const_char_list;
 vector<string> const_string_list;
+
+//总表中的addr的修正
+enum TABLE {
+    const_int_double,
+    const_char,
+    const_string,
+    lenl
+    };
+struct ADDR{
+    TABLE table;
+    int position;
+};
 
 //总表
 struct SYNBL {
@@ -43,11 +51,12 @@ struct SYNBL {
     TYPEL TYPE;
     CAT cat;
     int level; //作用域标号
-    int offset_add;//偏移地址
-    void* addr; //改为偏移地址 注意数组类型的偏移地址有不确定性
+    int offset_add; //偏移地址
+    ADDR addr;
 };
-vector<SYNBL> synbel_list;
-vector<SYNBL>::iterator synbel_it = synbel_list.begin();//用来标记符号表填入的当前位置，便符号表的管理
+vector<SYNBL> synbl_list;
+//迭代器会失效
+//vector<SYNBL>::iterator synbel_it = synbel_list.begin();//用来标记符号表填入的当前位置，便符号表的管理
 //先++synbel_it，再压入符号表
 
 //长度表，自定义类型需要指过去
@@ -124,7 +133,8 @@ stack<SIGN> sign_stack;
 //操作数结构
 struct OPERAND {
     string name;
-    vector<SYNBL>::iterator pointer;//配合着synbel_it,共同确定相应的符号表的位置
+    //vector<SYNBL>::iterator pointer;//配合着synbel_it,共同确定相应的符号表的位置
+    int position;
 };
 //对象栈
 stack<OPERAND> operand_stack;

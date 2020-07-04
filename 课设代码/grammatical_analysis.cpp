@@ -352,35 +352,29 @@ void grammar::E1()
 		temp = sub;
 		sign_stack.push(temp);
         getToken();
+
         T();//再其后生成四元式
-		OPERAND one,two;//弹出两个操作数
+
+        //弹出两个操作数
+		OPERAND one,two;
 		two = operand_stack.top();
 	    operand_stack.pop();
 		one = operand_stack.top();
-
-        operand_stack.pop(); //是不是应该加一个操作数的弹出
+        operand_stack.pop();
         
+        //准备将临时变量填到符号表里
 		OPERAND operand_temp=operand_temp_produce();
-		SYNBL synbl_temp;//准备将临时变量填到符号表里
+		SYNBL synbl_temp;
 		synbl_temp.name=operand_temp.name;
-
-        //synbl_temp.TYPE=two.pointer->TYPE;//访问符号表，与第一，第二操作数的类型一致
-        //结果的类型应该是通过两个操作数的类型进行推到
-        synbl_temp.TYPE=type_deduction(one.pointer->TYPE.tval,two.pointer->TYPE.tval);
-        if(synbl_temp.TYPE.tval==TVAL::WRONG_TYPE)
+        synbl_temp.TYPE=type_deduction(synbl_list[one.position].TYPE.tval,synbl_list[two.position].TYPE.tval);//结果的类型应该是通过两个操作数的类型进行推到
+        if(synbl_temp.TYPE.tval==TVAL::WRONG_TYPE)//类型不匹配
             error("wrong type");
-            
-		//synbl_temp.level=two.pointer->level;//地址问题先统一不处理 
         synbl_temp.level=current_level_stcak.back();//level应该是作用域
-
-		if(one.pointer->cat==c && two.pointer->cat==c)//只有两个操作数均为常数时，结果为常数，否则均为变量
-		
-        synbl_temp.cat=c;//如果为常数应该指向常数表 //但是现在还没有完成分类 先统一按照int处理
-
+		if(synbl_list[one.position].cat==c && synbl_list[two.position].cat==c)//只有两个操作数均为常数时，结果为常数，否则均为变量
+            synbl_temp.cat=c;
 		else synbl_temp.cat=v;
-		synbel_it++;
-		operand_temp.pointer=synbel_it;
-		synbel_list.push_back(synbl_temp);//将产生的临时变量填入符号表
+        operand_temp.position=push_into_synbel_list(synbl_temp);//用来替代迭代器
+
 		//准备产生四元式
 		QUATERNION q_temp;
         q_temp.operand_1=one;
@@ -390,6 +384,11 @@ void grammar::E1()
 		sign_stack.pop();//弹出操作符
 		quaternion_list.push_back(q_temp);//压入四元式
 		operand_stack.push(operand_temp);//将产生的临时变量压入对象栈
+
+        //如果临时变量是常数的话，还需要填写常数表
+        if(synbl_temp.cat==CAT::c){
+            push_into_const_int_double_list(one,two,operand_temp,q_temp.sign);
+        }
         E1();
     }
 }
@@ -408,22 +407,29 @@ void grammar::T1()
 		temp = div_;
 		sign_stack.push(temp);
         getToken();
+
         F();
-		OPERAND one,two;//弹出两个操作数
+
+        //弹出两个操作数
+		OPERAND one,two;
 		two = operand_stack.top();
 	    operand_stack.pop();
 		one = operand_stack.top();
+        operand_stack.pop();
+
+        //准备将临时变量填到符号表里
 		OPERAND operand_temp=operand_temp_produce();
-		SYNBL synbl_temp;//准备将临时变量填到符号表里
+		SYNBL synbl_temp;
 		synbl_temp.name=operand_temp.name;
-        synbl_temp.TYPE=two.pointer->TYPE;//访问符号表，与第一，第二操作数的类型一致
-		synbl_temp.level=two.pointer->level;//地址问题先统一不处理
-		if(one.pointer->cat==c && two.pointer->cat==c)//只有两个操作数均为常数时，结果为常数，否则均为变量
+        synbl_temp.TYPE=type_deduction(synbl_list[one.position].TYPE.tval,synbl_list[two.position].TYPE.tval);//访问符号表，与第一，第二操作数的类型一致
+        if(synbl_temp.TYPE.tval==TVAL::WRONG_TYPE)//类型不匹配的情况
+            error("wrong type");
+		synbl_temp.level=current_level_stcak.back();
+		if(synbl_list[one.position].cat==c && synbl_list[two.position].cat==c)//只有两个操作数均为常数时，结果为常数，否则均为变量
 		synbl_temp.cat=c;
 		else synbl_temp.cat=v;
-		synbel_it++;
-		operand_temp.pointer=synbel_it;
-		synbel_list.push_back(synbl_temp);//将产生的临时变量填入符号表
+		operand_temp.position=push_into_synbel_list(synbl_temp);//压入符号表
+
 		//准备产生四元式
 		QUATERNION q_temp;
         q_temp.operand_1=one;
@@ -433,12 +439,22 @@ void grammar::T1()
 		sign_stack.pop();//弹出操作符
 		quaternion_list.push_back(q_temp);//压入四元式
 		operand_stack.push(operand_temp);//将产生的临时变量压入对象栈
+
+        //如果临时变量是常数的话，还需要填写常数表
+        if(synbl_temp.cat==CAT::c){
+            push_into_const_int_double_list(one,two,operand_temp,q_temp.sign);
+        }
+
         T1();
     }
 }
 void grammar::F()
 {
     if (w.token_code == iT) {
+        if(!is_iT_defined(w.token_value)){
+            error(w.token_value+" not defined");
+        }
+
         getToken();
 		//数组问题还没处理
         D();
@@ -448,7 +464,7 @@ void grammar::F()
 		//先均当成int常数处理，等后期再分类
 		const_int_list.push_back(change_to_int(w.token_value));
 		synbel_temp.cat=c;//常量
-		synbel_temp.level=*level_it;
+		synbel_temp.level=current_level_stcak.back();
 		synbel_temp.TYPE.tval=Int;
 		synbel_temp.addr=const_int_list_it;//void*指针和迭代器转换之间存在问题，未解决
 		OPERAND num;
@@ -531,7 +547,7 @@ void grammar::C(int kind,token temp)
 	s_temp.level= *level_it;
 	s_temp.addr = NULL;
 	s_temp.offset_add=0;//对于变量v而言，其addr这部分需要跟着活动记录来实现
-	synbel_list.push_back(s_temp);//填入符号表
+	synbl_list.push_back(s_temp);//填入符号表
 	OPERAND operand_temp;
 	operand_temp.name=temp.token_value;//变量的名字
 	operand_temp.pointer=synbel_it;
@@ -546,7 +562,7 @@ int grammar::change_to_int(string &s)
 }
 
 //用来进行类型的推到 目前仅支持int double bool的推到 char和string默认返回WRONG_TYPE
-TYPEL type_deduction(TVAL tval_1,TVAL tval_2)
+TYPEL grammar::type_deduction(TVAL tval_1,TVAL tval_2)
 {
     TVAL new_tval;
     if(tval_1==TVAL::Int && tval_2==TVAL::Int)
@@ -570,3 +586,47 @@ TYPEL type_deduction(TVAL tval_1,TVAL tval_2)
     return new_typel;
 } 
 
+//压入符号表
+int grammar::push_into_synbel_list(SYNBL synbel)
+{
+    synbl_list.push_back(synbel); 
+    return (int)synbl_list.size()-1;
+}
+
+//判断标识符是否合法
+bool grammar::is_iT_defined(string iT_name)
+{
+    for(unsigned i=0;i<synbl_list.size();i++){
+        if(synbl_list[i].name==iT_name){
+            for(unsigned t=0;t<current_level_stcak.size();t++){
+                if(synbl_list[i].level==current_level_stcak[t]){
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+//填写常数表，如果临时变量为常数，则需要额外填写常数表，目前还没有做bool型的
+void grammer::push_into_const_int_double_list(OPERAND one,OPERAND two,OPERAND three,SIGN sign)
+{
+    double operand_3;
+    int operand_1=const_int_double_list[synbl_list[one.position].addr.position];
+    int operand_2=const_int_double_list[synbl_list[two.position].addr.position];
+    if(sign==SIGN::add){
+        operand_3=operand_1+operand_1;
+    }
+    else if(sign==SIGN::sub){
+        operand_3=operand_1-operand_1;
+    }
+    else if(sign==SIGN::div_){
+        operand_3=operand_1/operand_1;
+    }
+    else if(sign==SIGN::multi){
+        operand_3=operand_1*operand_1;
+    }
+    synbl_list[three.position].addr.table=TABLE::const_int_doubl;
+    synbl_list[three.position].addr.position=const_int_double_list.size();
+    const_int_double_list.push_back(operand_3);
+}
