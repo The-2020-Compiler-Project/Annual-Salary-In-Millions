@@ -259,8 +259,70 @@ void grammar::functionBody()
 void grammar::expression()
 {
     if (w.token_code == cT) {
+        
+        //判断符号表中是否已经有该常数
+        int position=0;
+        for(;position<synbl_list.size();position++){
+            if(synbl_list[position].name==w.token_value&&synbl_list[position].TYPE.tval==TVAL::Char)
+                break;
+        }
+
+        OPERAND cT_operand;
+        //已经在常数表中了则不需要填写符号表
+        if(position<synbl_list.size()){
+            //压入操作数栈
+            cT_operand.name=w.token_value;
+            cT_operand.position=position;
+            operand_stack.push(cT_operand);
+        }else{//不在符号表中则需要填写符号表
+            //填入符号表
+            SYNBL synbel_temp;
+		    synbel_temp.name = w.token_value;
+            synbel_temp.cat=CAT::c;
+            synbel_temp.level=0;
+            synbel_temp.TYPE.tval=TVAL::Char;
+            synbel_temp.addr.table=TABLE::const_char;
+            synbel_temp.addr.position=const_char_list.size();
+            const_char_list.push_back(w.token_value);
+            //压入操作数栈
+            cT_operand.name=w.token_value;
+            cT_operand.position=push_into_synbel_list(synbel_temp);
+            operand_stack.push(cT_operand);
+        }
+
         getToken();
     } else if (w.token_code == sT) {
+        
+        //判断符号表中是否已经有该常数
+        int position=0;
+        for(;position<synbl_list.size();position++){
+            if(synbl_list[position].name==w.token_value&&synbl_list[position].TYPE.tval==TVAL::String)
+                break;
+        }
+
+        OPERAND ST_operand;
+        //已经在常数表中了则不需要填写符号表
+        if(position<synbl_list.size()){
+            //压入操作数栈
+            ST_operand.name=w.token_value;
+            ST_operand.position=position;
+            operand_stack.push(ST_operand);
+        }else{//不在符号表中则需要填写符号表
+            //填入符号表
+            SYNBL synbel_temp;
+		    synbel_temp.name = w.token_value;
+            synbel_temp.cat=CAT::c;
+            synbel_temp.level=0;
+            synbel_temp.TYPE.tval=TVAL::String;
+            synbel_temp.addr.table=TABLE::const_string;
+            synbel_temp.addr.position=const_string_list.size();
+            const_char_list.push_back(w.token_value);
+            //压入操作数栈
+            ST_operand.name=w.token_value;
+            ST_operand.position=push_into_synbel_list(synbel_temp);
+            operand_stack.push(ST_operand);
+        }
+
         getToken();
     } else {
         mathExpression();
@@ -276,23 +338,68 @@ void grammar::mathExpression()
 void grammar::logicExpression()
 {
     if (w.token_value == ">") {
+        sign_stack.push(SIGN::larger);
 
     } else if (w.token_value == "<") {
+        sign_stack.push(SIGN::smaller);
 
     } else if (w.token_value == ">=") {
+        sign_stack.push(SIGN::larger_equal);
 
     } else if (w.token_value == "<=") {
+        sign_stack.push(SIGN::smaller_equal);
 
     } else if (w.token_value == "&&") {
+        sign_stack.push(SIGN::and_);
 
     } else if (w.token_value == "||") {
+        sign_stack.push(SIGN::or_);
 
     } else if (w.token_value == "!=") {
+        sign_stack.push(SIGN::not_equal);
     } else {
         return;
     }
     getToken();
     mathExpression();
+
+    //生成四元式
+    //弹出两个操作数
+    OPERAND one,two;
+    two = operand_stack.top();
+    operand_stack.pop();
+    one = operand_stack.top();
+    operand_stack.pop();
+
+    //准备将临时变量填到符号表里
+    OPERAND operand_temp=operand_temp_produce();
+    SYNBL synbl_temp;
+    synbl_temp.name=operand_temp.name;
+    synbl_temp.TYPE=type_deduction(synbl_list[one.position].TYPE.tval,synbl_list[two.position].TYPE.tval);//访问符号表，与第一，第二操作数的类型一致
+    if(synbl_temp.TYPE.tval==TVAL::WRONG_TYPE||synbl_temp.TYPE.tval==TVAL::Char||synbl_temp.TYPE.tval==TVAL::String)//类型不匹配的情况
+        error("wrong type");
+    synbl_temp.level=current_level_stcak.back();
+    if(synbl_list[one.position].cat==c && synbl_list[two.position].cat==c)//只有两个操作数均为常数时，结果为常数，否则均为变量
+    synbl_temp.cat=c;
+    else synbl_temp.cat=v;
+    operand_temp.position=push_into_synbel_list(synbl_temp);//压入符号表
+
+    //准备产生四元式
+    QUATERNION q_temp;
+    q_temp.operand_1=one;
+    q_temp.operand_2=two;
+    q_temp.operand_3=operand_temp;
+    q_temp.sign=sign_stack.top();
+    sign_stack.pop();//弹出操作符
+    quaternion_list.push_back(q_temp);//压入四元式
+    operand_stack.push(operand_temp);//将产生的临时变量压入对象栈
+
+    //如果临时变量是常数的话，还需要填写常数表
+    if(synbl_temp.cat==CAT::c){
+        push_into_const_int_double_list(one,two,operand_temp,q_temp.sign);
+    }
+    
+
 }
 
 void grammar::declaration(TVAL tval)
@@ -403,9 +510,14 @@ void grammar::declaration_2(TVAL tval)
                     }else if (synbl_list[subscrip_operand.position].TYPE.tval!=TVAL::Int){
                         error(temp.token_value+" declar with not integer");
                     }
+                    
                     //获取数组大小
                     int const_position=synbl_list[subscrip_operand.position].addr.position;
                     int subscrip=const_int_double_list[const_position];
+                    //如果为0
+                    if(subscrip==0){
+                        error(w.token_value+" array declear with 0");
+                    }
                     
                     //填写符号表
                     SYNBL array_synbl;
@@ -503,7 +615,7 @@ void grammar::declaration_2(TVAL tval)
             array_element_operand.position=push_into_synbel_list(array_element_synbl);
             operand_stack.push(array_element_operand);
 
-            arrayInit();
+            arrayInit(operand_array,tval,max_subscrip,current_subscrip);
             if (w.token_value == "}") {
                 getToken();
                 return;
@@ -517,13 +629,55 @@ void grammar::declaration_2(TVAL tval)
         return;
     }
 }
-void grammar::arrayInit()
+void grammar::arrayInit(OPERAND operand_array,TVAL tval,int max_subscrip,int current_subscrip)
 {
     if (w.token_value == ",") {
+        if(current_level>max_subscrip){
+            error("Assignment exceeds");
+        }
         getToken();
         expression();
-        arrayInit();
+
+        //获得操作数
+        OPERAND one=operand_stack.top();
+        operand_stack.pop();
+        OPERAND three=operand_stack.top();
+        operand_stack.pop();
+
+        //判断类型是否匹配
+        TYPEL typel=type_deduction(synbl_list[one.position].TYPE.tval,synbl_list[three.position].TYPE.tval);
+        if(typel.tval==TVAL::WRONG_TYPE){
+            error(one.name+" and "+three.name+" type mismatch");
+        }
+
+        //构建赋值四元式
+        QUATERNION quaternion;
+        quaternion.sign=SIGN::equal;
+        quaternion.operand_1=one;
+        quaternion.operand_3=three;
+        quaternion_list.push_back(quaternion);
+
+        //初始化的位置 ++
+        current_subscrip++;
+
+        //数组元素操作填写符号表 构建数组元素的操作数并且压入对象栈 存在数组元素重复填写符号表的问题 符号表中可能有多余的元素
+        SYNBL array_element_synbl;
+        array_element_synbl.name=operand_array.name+"["+to_string(current_subscrip)+"]";
+        array_element_synbl.cat=CAT::v;
+        array_element_synbl.addr.table=TABLE::synbl;
+        array_element_synbl.addr.position=operand_array.position;
+        array_element_synbl.level=current_level_stcak.back();
+        array_element_synbl.TYPE.tval=tval;
+        OPERAND array_element_operand;
+        array_element_operand.name=array_element_synbl.name;
+        array_element_operand.position=push_into_synbel_list(array_element_synbl);
+        operand_stack.push(array_element_operand);
+
+        arrayInit(operand_array,tval,max_subscrip,current_subscrip);
+    }else{
+        operand_stack.pop();
     }
+    
 }
 void grammar::assignment()
 {
@@ -961,6 +1115,14 @@ TYPEL grammar::type_deduction(TVAL tval_1,TVAL tval_2)
     else if((tval_1==TVAL::Bool && tval_2==TVAL::Bool))
     {
         new_tval=TVAL::Bool;
+    }
+    else if((tval_1==TVAL::Char && tval_2==TVAL::Char))
+    {
+        new_tval=TVAL::Char;
+    }
+    else if((tval_1==TVAL::String && tval_2==TVAL::String))
+    {
+        new_tval=TVAL::String;
     }
     else
     {

@@ -28,13 +28,13 @@ public:
     TVAL type();//修改用来返回相应的类型，供符号表的填写
     bool isType();
     void functionBody();//完成
-    void expression();
-    void mathExpression();//完成
+    void expression();//完成
+    void mathExpression(); //完成
     void logicExpression();
     void declaration(TVAL tval);//传入类型 //完成
     void declaration_1(TVAL kind);//传入类型 //完成
     void declaration_2(TVAL kind);//传入类型 //完成
-    void arrayInit();
+    void arrayInit(OPERAND operand_array,TVAL tval,int max_subscrip,int current_subscrip);//完成
     void assignment();//完成
     void A();//完成
     void B();//完成
@@ -45,7 +45,8 @@ public:
     void E1();//完成
     void F();//完成
     void T1();//完成
-	OPERAND operand_temp_produce();//产生临时变量
+
+	OPERAND operand_temp_produce();//产生临时变量 //需要修改
 	int change_to_int(string &s);//用于处理int形式填写符号表
     TYPEL type_deduction(TVAL tval_1,TVAL tval_2); //用来进行类型的推到
     int push_into_synbel_list(SYNBL synbel); //填写符号表并且返回位置

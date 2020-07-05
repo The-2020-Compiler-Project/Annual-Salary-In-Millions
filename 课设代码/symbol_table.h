@@ -46,7 +46,7 @@ vector<TYPEL> typel_list;
 vector<double> const_int_double_list;
 //迭代器失效问题
 //vector<int>::iterator const_int_list_it =const_int_list.begin();//便于索引常数表中的内容
-vector<char> const_char_list;
+vector<string> const_char_list;
 vector<string> const_string_list;
 
 
