@@ -40,14 +40,8 @@ struct TYPEL {
     TVAL tval;
     ADDR addr;
 };
-vector<TYPEL> typel_list;
 
-//各个常数表
-vector<double> const_int_double_list;
-//迭代器失效问题
-//vector<int>::iterator const_int_list_it =const_int_list.begin();//便于索引常数表中的内容
-vector<string> const_char_list;
-vector<string> const_string_list;
+
 
 
 
@@ -60,13 +54,13 @@ struct SYNBL {
     int offset_add; //偏移地址
     ADDR addr;
 };
-vector<SYNBL> synbl_list;
+
 //迭代器会失效
 //vector<SYNBL>::iterator synbel_it = synbel_list.begin();//用来标记符号表填入的当前位置，便符号表的管理
 //先++synbel_it，再压入符号表
 
 //长度表，自定义类型需要指过去
-vector<int> LENL;
+
 
 //数组表
 struct AINFL {
@@ -76,7 +70,7 @@ struct AINFL {
     TVAL tval;
     int clen;
 };
-vector<AINFL> ainfl_list;
+
 
 //结构表 暂时用不到
 struct RINFL {
@@ -84,7 +78,7 @@ struct RINFL {
     int off;
     TYPEL* tp;
 };
-vector<RINFL> rinfl_list;
+
 
 //形参表
 struct FPL {
@@ -94,7 +88,7 @@ struct FPL {
     int level; //对应活动记录中的第几层
     int off; //对应的偏移地址
 };
-vector<FPL> fpl_list;
+
 
 //函数表
 struct PFINFL {
@@ -105,7 +99,7 @@ struct PFINFL {
     FPL* fpl_pointer;
     int data_long; //该函数中需要开辟的空间的大小 为了目标代码生成服务
 };
-vector<PFINFL> pfinfl_list;
+
 
 //标识符表 为了方便判断是否重定义以及类型是否匹配 额外设立一个标识符表
 struct IDENTIFY {
@@ -115,10 +109,10 @@ struct IDENTIFY {
 };
 
 //已分配作用域标号
-int current_level=0;
+
 //作用域栈
-vector <int> current_level_stcak;//作用域栈，用来存储作用域。
-vector <int>::iterator level_it =current_level_stcak.begin();//用来表示栈顶，便于释放元素
+
+
 //四元式符号
 enum SIGN {
     add,
@@ -141,7 +135,7 @@ enum SIGN {
     do_
 };
 //操作符栈
-stack<SIGN> sign_stack;
+
 
 //操作数结构
 struct OPERAND {
@@ -150,7 +144,7 @@ struct OPERAND {
     int position;
 };
 //对象栈
-stack<OPERAND> operand_stack;
+
 
 //四元式结构体
 struct QUATERNION {
@@ -159,7 +153,4 @@ struct QUATERNION {
     OPERAND operand_2;
     OPERAND operand_3;
 };
-vector<QUATERNION> quaternion_list;
 
-//错误信息流
-vector<string> err_msg_list;

@@ -2,6 +2,25 @@
 #include "symbol_table.h"
 //开始插入一些语义动作
 // 对词法分析包装内函数的定义
+
+vector<AINFL> ainfl_list;
+vector<RINFL> rinfl_list;
+vector<FPL> fpl_list;
+vector<PFINFL> pfinfl_list;
+int current_level=0;
+stack<SIGN> sign_stack;
+stack<OPERAND> operand_stack;
+vector<string> err_msg_list;
+vector<QUATERNION> quaternion_list;
+vector<TYPEL> typel_list;
+vector<double> const_int_double_list;
+vector<string> const_char_list;
+vector<string> const_string_list;
+vector<int> LENL;
+vector<SYNBL> synbl_list;
+vector <int> current_level_stcak;   
+
+
 lexic_wrapper::lexic_wrapper()
 {
     lex = new lexic();

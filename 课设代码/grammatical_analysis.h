@@ -1,4 +1,5 @@
-#include "lexical_analysis.h"
+#include "lexical_analysis.cpp"
+#include "symbol_table.h"
 /*语法分析部分开始*/
 // 包装词法分析，提供getToken函数
 class lexic_wrapper {
@@ -54,5 +55,5 @@ public:
     void push_into_const_int_double_list(OPERAND one,OPERAND two,OPERAND three,SIGN sign);//填写常数表，如果临时变量为常数，则需要额外填写常数表，目前还没有做bool型的
     TVAL CT_type_deduction(string str);//判断常数为double还是int类型
     bool is_iT_defined_in_current_level(string name);//判断标识符在当前作用域中是否已经定义过
-    int grammar::change_type_to_length(TVAL tval);//获得类型的字节长度
+    int change_type_to_length(TVAL tval);//获得类型的字节长度
 };
