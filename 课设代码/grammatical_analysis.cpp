@@ -127,15 +127,15 @@ TVAL grammar::type()
     if (w.token_code == KT) {
         if (w.token_value == "int" || w.token_value == "char" || w.token_value == "bool" || w.token_value == "string" || w.token_value == "double") {
 			if(w.token_value=="int" )
-			return Int;
+			return TVAL::Int;
 			else if(w.token_value =="char")
-			return Char;
+			return TVAL::Char;
 			else if(w.token_value == "bool")
-			return Bool;
+			return TVAL::Bool;
 			else if(w.token_value == "string")
-			return String;
+			return TVAL::String;
 			else if(w.token_value == "double" )
-			return Double;
+			return TVAL::Double;
             getToken();
         } else {
             error();
@@ -399,8 +399,8 @@ void grammar::logicExpression()
         error("wrong type");
     synbl_temp.level=current_level_stcak.back();
     if(synbl_list[one.position].cat==c && synbl_list[two.position].cat==c)//只有两个操作数均为常数时，结果为常数，否则均为变量
-    synbl_temp.cat=c;
-    else synbl_temp.cat=v;
+    synbl_temp.cat=CAT::c;
+    else synbl_temp.cat=CAT::v;
     operand_temp.position=push_into_synbel_list(synbl_temp);//压入符号表
 
     //准备产生四元式
@@ -745,9 +745,9 @@ void grammar::E1()
 		//将操作符保存到操作符栈中
 		SIGN temp;
 		if(w.token_value == "+")
-		temp = add;
+		temp = SIGN::add;
 		else
-		temp = sub;
+		temp = SIGN::sub;
 		sign_stack.push(temp);
         getToken();
 
@@ -769,8 +769,8 @@ void grammar::E1()
             error("wrong type");
         synbl_temp.level=current_level_stcak.back();//level应该是作用域
 		if(synbl_list[one.position].cat==c && synbl_list[two.position].cat==c)//只有两个操作数均为常数时，结果为常数，否则均为变量
-            synbl_temp.cat=c;
-		else synbl_temp.cat=v;
+            synbl_temp.cat=CAT::c;
+		else synbl_temp.cat=CAT::v;
         operand_temp.position=push_into_synbel_list(synbl_temp);//用来替代迭代器
 
 		//准备产生四元式
@@ -800,9 +800,9 @@ void grammar::T1()
     if ((w.token_code == PT && w.token_value == "*") || (w.token_code == PT && w.token_value == "/")) {
 		SIGN temp;
 		if(w.token_value == "*")
-		temp = multi;
+		temp = SIGN::multi;
 		else
-		temp = div_;
+		temp = SIGN::div_;
 		sign_stack.push(temp);
         getToken();
 
@@ -824,8 +824,8 @@ void grammar::T1()
             error("wrong type");
 		synbl_temp.level=current_level_stcak.back();
 		if(synbl_list[one.position].cat==c && synbl_list[two.position].cat==c)//只有两个操作数均为常数时，结果为常数，否则均为变量
-		synbl_temp.cat=c;
-		else synbl_temp.cat=v;
+		synbl_temp.cat=CAT::c;
+		else synbl_temp.cat=CAT::v;
 		operand_temp.position=push_into_synbel_list(synbl_temp);//压入符号表
 
 		//准备产生四元式
