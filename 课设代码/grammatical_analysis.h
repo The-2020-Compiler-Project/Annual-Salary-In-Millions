@@ -25,20 +25,20 @@ public:
     void getToken();
     void begin();
     void program();//完成
-    int type();//修改用来返回相应的类型，供符号表的填写
+    TVAL type();//修改用来返回相应的类型，供符号表的填写
     bool isType();
-    void functionBody();
+    void functionBody();//完成
     void expression();
-    void mathExpression();
+    void mathExpression();//完成
     void logicExpression();
-    void declaration(int kind);//传入类型
-    void declaration_1();
-    void declaration_2();
+    void declaration(TVAL tval);//传入类型 //完成
+    void declaration_1(TVAL kind);//传入类型 //完成
+    void declaration_2(TVAL kind);//传入类型 //完成
     void arrayInit();
     void assignment();//完成
     void A();//完成
-    void B();
-    void C(int kind,token temp);//传入标识和相应的类型
+    void B();//完成
+    void C(TVAL kind,token temp);//传入标识和相应的类型 //完成
     void D();//完成
     void E();//完成
     void T();//完成
@@ -52,4 +52,6 @@ public:
     int is_iT_defined(string it_name); //判断标识符是否已经定义了
     void push_into_const_int_double_list(OPERAND one,OPERAND two,OPERAND three,SIGN sign);//填写常数表，如果临时变量为常数，则需要额外填写常数表，目前还没有做bool型的
     TVAL CT_type_deduction(string str);//判断常数为double还是int类型
+    bool is_iT_defined_in_current_level(string name);//判断标识符在当前作用域中是否已经定义过
+    int grammar::change_type_to_length(TVAL tval);//获得类型的字节长度
 };

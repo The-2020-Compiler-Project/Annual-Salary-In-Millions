@@ -9,7 +9,9 @@ enum CAT { f,
     d,
     v,
     vn,
-    vf };
+    vf,
+    tv//临时变量 
+    };
 //按照实际进行修改
 enum TVAL { Int,
     Double,
@@ -130,7 +132,13 @@ enum SIGN {
     larger_equal,
     smaller_equal,
     and_,
-    or_
+    or_,
+    if_,
+    ie,
+    wh,
+    we,
+    else_,
+    do_
 };
 //操作符栈
 stack<SIGN> sign_stack;
