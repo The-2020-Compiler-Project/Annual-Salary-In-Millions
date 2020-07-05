@@ -119,7 +119,8 @@ enum SIGN {
     sub,
     multi,
     div_,
-    equal,
+    equal,//赋值 =
+    is_equal,//相当 ==
     not_equal,
     larger,
     smaller,
