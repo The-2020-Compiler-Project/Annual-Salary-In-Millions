@@ -30,7 +30,7 @@ public:
     void functionBody();//完成
     void expression();//完成
     void mathExpression(); //完成
-    void logicExpression();
+    void logicExpression();//完成
     void declaration(TVAL tval);//传入类型 //完成
     void declaration_1(TVAL kind);//传入类型 //完成
     void declaration_2(TVAL kind);//传入类型 //完成
