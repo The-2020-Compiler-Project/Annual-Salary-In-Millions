@@ -376,6 +376,9 @@ void grammar::logicExpression()
 
     } else if (w.token_value == "!=") {
         sign_stack.push(SIGN::not_equal);
+    } else if (w.token_value == "=="){
+         sign_stack.push(SIGN::not_equal);
+
     } else {
         return;
     }
