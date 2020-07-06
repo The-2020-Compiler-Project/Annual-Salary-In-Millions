@@ -1,5 +1,4 @@
 #include "grammatical_analysis.h"
-#include "symbol_table.h"
 //开始插入一些语义动作
 // 对词法分析包装内函数的定义
 
