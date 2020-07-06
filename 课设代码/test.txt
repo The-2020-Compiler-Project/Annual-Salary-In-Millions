@@ -3,14 +3,14 @@ void  main ()
    int   a=1;
    int b=2;
    int c=3;
-   if(a<=d)
+   if(a<=b)
     {
        c=a;
-       a=d;
-       d=c;
+       a=b;
+       b=c;
     }
 
 char   x,y='a';
-c=a+d;
+c=a+b;
 }
 #

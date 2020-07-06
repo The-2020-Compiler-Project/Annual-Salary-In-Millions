@@ -17,7 +17,7 @@ vector<string> const_char_list;
 vector<string> const_string_list;
 vector<int> LENL;
 vector<SYNBL> synbl_list;
-vector <int> current_level_stcak;   
+vector <int> current_level_stack;   
 
 
 lexic_wrapper::lexic_wrapper()
@@ -65,8 +65,8 @@ void grammar::getToken()
 }
 OPERAND grammar::operand_temp_produce()
 {
-	temp_operand[1]++;
-	string s(temp_operand);
+	temp_operand_num++;
+	string s=to_string(temp_operand_num)+"t";
 	OPERAND temp;
 	temp.name=s;
 	return temp;//产生的临时变量的指针未初始化，由填符号表时来确定
@@ -77,6 +77,7 @@ void grammar::begin()
     program();
     if (w.token_value == "#") {
         cout << "finished,no error" << endl;
+        print_quaternion_list();
         return;
     } else {
         error();
@@ -85,7 +86,7 @@ void grammar::begin()
 
 void grammar::program()
 {   current_level=0;
-    current_level_stcak.push_back(current_level);//最外层的层次号为0
+    current_level_stack.push_back(current_level);//最外层的层次号为0
     if (w.token_code == KT && w.token_value == "void") {
         getToken();
         if (w.token_code == KT && w.token_value == "main") {
@@ -97,11 +98,11 @@ void grammar::program()
                     if (w.token_code == PT && w.token_value == "{") {
 						current_level++;
 						//level_it++; 迭代器失效
-						current_level_stcak.push_back(current_level);//层次加一，入栈
+						current_level_stack.push_back(current_level);//层次加一，入栈
                         getToken();
                         functionBody();
                         if (w.token_code == PT && w.token_value == "}") {
-							current_level_stcak.pop_back();
+							current_level_stack.pop_back();
                             getToken();
                             return;
                         } else {
@@ -125,17 +126,26 @@ TVAL grammar::type()
 {
     if (w.token_code == KT) {
         if (w.token_value == "int" || w.token_value == "char" || w.token_value == "bool" || w.token_value == "string" || w.token_value == "double") {
-			if(w.token_value=="int" )
-			return TVAL::Int;
-			else if(w.token_value =="char")
-			return TVAL::Char;
-			else if(w.token_value == "bool")
-			return TVAL::Bool;
-			else if(w.token_value == "string")
-			return TVAL::String;
-			else if(w.token_value == "double" )
-			return TVAL::Double;
-            getToken();
+			if(w.token_value=="int" ){
+                getToken();
+			    return TVAL::Int;
+            }
+			else if(w.token_value =="char"){
+                getToken();
+                return TVAL::Char;
+            }
+			else if(w.token_value == "bool"){
+                getToken();
+                return TVAL::Bool;
+            }
+			else if(w.token_value == "string"){
+                getToken();
+                return TVAL::String;
+            }
+			else if(w.token_value == "double" ){
+                return TVAL::Double;
+                getToken();
+            }
         } else {
             error();
         }
@@ -193,13 +203,18 @@ void grammar::functionBody()
                 if (w.token_value == "{") {
                     //作用域栈++
                     current_level++;
-                    current_level_stcak.push_back(current_level);
+                    current_level_stack.push_back(current_level);
                     getToken();
                     functionBody();
+                    //生成ie四元式
+                    QUATERNION ie_quaternion;
+                    ie_quaternion.sign=SIGN::ie;
+                    quaternion_list.push_back(ie_quaternion);
+
                     if (w.token_value == "}") {
 
                         //作用域栈--
-                        current_level_stcak.pop_back();
+                        current_level_stack.pop_back();
 
                         getToken();
                         B();
@@ -242,17 +257,23 @@ void grammar::functionBody()
                     
                     //作用域栈++
                     current_level++;
-                    current_level_stcak.push_back(current_level);
+                    current_level_stack.push_back(current_level);
 
                     getToken();
                     functionBody();
                     if (w.token_value == "}") {
 
                         //作用域栈--
-                        current_level_stcak.pop_back();
+                        current_level_stack.pop_back();
 
                         getToken();
                         functionBody();
+
+                        //生成ie四元式
+                        QUATERNION we_quaternion;
+                        we_quaternion.sign=SIGN::we;
+                        quaternion_list.push_back(we_quaternion);
+
                     } else {
                         error();
                     }
@@ -399,7 +420,7 @@ void grammar::logicExpression()
     synbl_temp.TYPE=type_deduction(synbl_list[one.position].TYPE.tval,synbl_list[two.position].TYPE.tval);//访问符号表，与第一，第二操作数的类型一致
     if(synbl_temp.TYPE.tval==TVAL::WRONG_TYPE||synbl_temp.TYPE.tval==TVAL::Char||synbl_temp.TYPE.tval==TVAL::String)//类型不匹配的情况
         error("wrong type");
-    synbl_temp.level=current_level_stcak.back();
+    synbl_temp.level=current_level_stack.back();
     if(synbl_list[one.position].cat==c && synbl_list[two.position].cat==c)//只有两个操作数均为常数时，结果为常数，否则均为变量
     synbl_temp.cat=CAT::c;
     else synbl_temp.cat=CAT::v;
@@ -461,10 +482,11 @@ void grammar::declaration_1(TVAL tval)
             SYNBL synbl;
             synbl.name=w.token_value;
             synbl.cat=CAT::v;
-            synbl.level=current_level_stcak.back();
+            synbl.level=current_level_stack.back();
             synbl.TYPE.tval=tval;
             //压入操作数栈
             OPERAND operand;
+            operand.name=w.token_value;
             operand.position=push_into_synbel_list(synbl);
             operand_stack.push(operand);
             declaration_1(tval);
@@ -544,7 +566,7 @@ void grammar::declaration_2(TVAL tval)
                     SYNBL array_synbl;
                     array_synbl.name=temp.token_value;
                     array_synbl.cat=CAT::v;
-                    array_synbl.level=current_level_stcak.back();
+                    array_synbl.level=current_level_stack.back();
                     //array_synbl.addr.table=TABLE::lenl;////填写长度表
                     //填写数组表
                     array_synbl.TYPE.tval=TVAL::Array;
@@ -559,6 +581,7 @@ void grammar::declaration_2(TVAL tval)
 
                     //压入操作数栈
                     OPERAND operand;
+                    operand.name=temp.token_value;
                     operand.position=push_into_synbel_list(array_synbl);
                     operand_stack.push(operand);
 
@@ -589,7 +612,7 @@ void grammar::declaration_2(TVAL tval)
         array_element_synbl.cat=CAT::v;
         array_element_synbl.addr.table=TABLE::synbl;
         array_element_synbl.addr.position=operand_array.position;
-        array_element_synbl.level=current_level_stcak.back();
+        array_element_synbl.level=current_level_stack.back();
         array_element_synbl.TYPE.tval=tval;
         OPERAND array_element_operand;
         array_element_operand.name=array_element_synbl.name;
@@ -629,7 +652,7 @@ void grammar::declaration_2(TVAL tval)
             array_element_synbl.cat=CAT::v;
             array_element_synbl.addr.table=TABLE::synbl;
             array_element_synbl.addr.position=operand_array.position;
-            array_element_synbl.level=current_level_stcak.back();
+            array_element_synbl.level=current_level_stack.back();
             array_element_synbl.TYPE.tval=tval;
             OPERAND array_element_operand;
             array_element_operand.name=array_element_synbl.name;
@@ -687,7 +710,7 @@ void grammar::arrayInit(OPERAND operand_array,TVAL tval,int max_subscrip,int cur
         array_element_synbl.cat=CAT::v;
         array_element_synbl.addr.table=TABLE::synbl;
         array_element_synbl.addr.position=operand_array.position;
-        array_element_synbl.level=current_level_stcak.back();
+        array_element_synbl.level=current_level_stack.back();
         array_element_synbl.TYPE.tval=tval;
         OPERAND array_element_operand;
         array_element_operand.name=array_element_synbl.name;
@@ -769,7 +792,7 @@ void grammar::E1()
         synbl_temp.TYPE=type_deduction(synbl_list[one.position].TYPE.tval,synbl_list[two.position].TYPE.tval);//结果的类型应该是通过两个操作数的类型进行推到
         if(synbl_temp.TYPE.tval==TVAL::WRONG_TYPE)//类型不匹配
             error("wrong type");
-        synbl_temp.level=current_level_stcak.back();//level应该是作用域
+        synbl_temp.level=current_level_stack.back();//level应该是作用域
 		if(synbl_list[one.position].cat==c && synbl_list[two.position].cat==c)//只有两个操作数均为常数时，结果为常数，否则均为变量
             synbl_temp.cat=CAT::c;
 		else synbl_temp.cat=CAT::v;
@@ -824,7 +847,7 @@ void grammar::T1()
         synbl_temp.TYPE=type_deduction(synbl_list[one.position].TYPE.tval,synbl_list[two.position].TYPE.tval);//访问符号表，与第一，第二操作数的类型一致
         if(synbl_temp.TYPE.tval==TVAL::WRONG_TYPE)//类型不匹配的情况
             error("wrong type");
-		synbl_temp.level=current_level_stcak.back();
+		synbl_temp.level=current_level_stack.back();
 		if(synbl_list[one.position].cat==c && synbl_list[two.position].cat==c)//只有两个操作数均为常数时，结果为常数，否则均为变量
 		synbl_temp.cat=CAT::c;
 		else synbl_temp.cat=CAT::v;
@@ -889,7 +912,7 @@ void grammar::F()
             SYNBL synbel_temp;
 		    synbel_temp.name = w.token_value;
             synbel_temp.cat=CAT::c;
-            synbel_temp.level=0;
+            synbel_temp.level=0;//常数的为0
             synbel_temp.TYPE.tval=CT_tval;
             synbel_temp.addr.table=TABLE::const_int_double;
             synbel_temp.addr.position=const_int_double_list.size();
@@ -949,7 +972,7 @@ void grammar::D()
         array_element_synbl.cat=CAT::v;
         array_element_synbl.addr.table=TABLE::synbl;
         array_element_synbl.addr.position=iT_operand.position;
-        array_element_synbl.level=current_level_stcak.back();
+        array_element_synbl.level=current_level_stack.back();
         int anifl_position=synbl_list[iT_operand.position].TYPE.addr.position;
         array_element_synbl.TYPE.tval=ainfl_list[anifl_position].tval;
         OPERAND array_element_operand;
@@ -1007,7 +1030,7 @@ void grammar::A()
         array_element_synbl.cat=CAT::v;
         array_element_synbl.addr.table=TABLE::synbl;
         array_element_synbl.addr.position=iT_operand.position;
-        array_element_synbl.level=current_level_stcak.back();
+        array_element_synbl.level=current_level_stack.back();
         int anifl_position=synbl_list[iT_operand.position].TYPE.addr.position;
         array_element_synbl.TYPE.tval=ainfl_list[anifl_position].tval;
         OPERAND array_element_operand;
@@ -1038,14 +1061,14 @@ void grammar::B()
 
             //作用域栈++
             current_level++;
-            current_level_stcak.push_back(current_level);
+            current_level_stack.push_back(current_level);
 
             getToken();
             functionBody();
             if (w.token_code == PT && w.token_value == "}") {
 
                 //作用域栈--
-                current_level_stcak.pop_back();
+                current_level_stack.pop_back();
 
                 getToken();
             } else {
@@ -1080,7 +1103,7 @@ void grammar::C(TVAL kind,token temp)
             SYNBL array_synbl;
             array_synbl.name=temp.token_value;
             array_synbl.cat=CAT::v;
-            array_synbl.level=current_level_stcak.back();
+            array_synbl.level=current_level_stack.back();
             //array_synbl.addr.table=TABLE::lenl;////填写长度表
             //填写数组表
             array_synbl.TYPE.tval=TVAL::Array;
@@ -1109,10 +1132,11 @@ void grammar::C(TVAL kind,token temp)
         SYNBL synbl;
         synbl.name=temp.token_value;
         synbl.cat=CAT::v;
-        synbl.level=current_level_stcak.back();
+        synbl.level=current_level_stack.back();
         synbl.TYPE.tval=kind;
         //压入操作数栈
         OPERAND operand;
+        operand.name=temp.token_value;
         operand.position=push_into_synbel_list(synbl);
         operand_stack.push(operand);
         declaration_1(kind);
@@ -1168,8 +1192,8 @@ int grammar::is_iT_defined(string iT_name)
     int current_level_=-1;
     for(unsigned i=0;i<synbl_list.size();i++){
         if(synbl_list[i].name==iT_name){
-            for(unsigned t=0;t<current_level_stcak.size();t--){
-                if(synbl_list[i].level==current_level_stcak[t]){
+            for(unsigned t=0;t<current_level_stack.size();t++){
+                if(synbl_list[i].level==current_level_stack[t]){
                     if(synbl_list[i].level>current_level_){ //优先返回深度更深的作用域的变量
                         position=i;
                         current_level_=synbl_list[i].level;
@@ -1222,7 +1246,7 @@ TVAL grammar::CT_type_deduction(string str)
 bool grammar::is_iT_defined_in_current_level(string name)
 {
     for(int i=0;i<synbl_list.size();i++){
-        if(synbl_list[i].name==name&&synbl_list[i].level==current_level_stcak.back()){
+        if(synbl_list[i].name==name&&synbl_list[i].level==current_level_stack.back()){
             return true;
         }
     }
@@ -1253,4 +1277,108 @@ int grammar::change_type_to_length(TVAL tval)
     default:
         break;
     }
+}
+
+//输出四元式
+void grammar::print_quaternion_list()
+{
+    for(int i=0;i<quaternion_list.size();i++)
+    {
+        QUATERNION q=quaternion_list[i];
+        string sign=change_sign_to_string(q.sign);
+        string one=q.operand_1.name;
+        if(q.operand_1.name=="")
+            one="_";
+        string two=q.operand_2.name;
+        if(q.operand_2.name=="")
+            two="_";
+        string three=q.operand_3.name;
+        if(q.operand_3.name=="")
+            three="_";
+        cout<<'('<<sign<<','<<one<<','<<two<<','<<three<<')'<<endl;
+    }
+}
+
+//将枚举型的sign转为string
+string grammar::change_sign_to_string(SIGN sign_enum)
+{
+    string sign;
+    switch (sign_enum)
+    {
+    case SIGN::add :
+        sign='+';
+        break;
+
+    case SIGN::sub :
+        sign='-';
+        break;
+    
+    case SIGN::multi :
+        sign='*';
+        break;
+
+    case SIGN::div_ :
+        sign='-';
+        break;
+    
+    case SIGN::equal :
+        sign='=';
+        break;
+    
+    case SIGN::is_equal :
+        sign="==";
+        break;
+    
+    case SIGN::larger :
+        sign='>';
+        break;
+    
+    case SIGN::smaller :
+        sign='<';
+        break;
+    
+    case SIGN::larger_equal :
+        sign=">=";
+        break;
+    
+    case SIGN::smaller_equal :
+        sign="<=";
+        break;
+
+    case SIGN::and_ :
+        sign="AND";
+        break;
+    
+    case SIGN::or_ :
+        sign="OR";
+        break;
+
+    case SIGN::if_ :
+        sign="IF";
+        break;
+
+    case SIGN::ie :
+        sign="IE";
+        break;
+    
+    case SIGN::wh :
+        sign="WHILE";
+        break;
+
+    case SIGN::we :
+        sign="WE";
+        break;
+    
+    case SIGN::else_ :
+        sign="ELSE";
+        break;
+
+    case SIGN::do_ :
+        sign="DO";
+        break;
+        
+    default:
+        break;
+    }
+    return sign;
 }

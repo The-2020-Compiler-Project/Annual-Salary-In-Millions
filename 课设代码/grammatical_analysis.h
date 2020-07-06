@@ -18,7 +18,7 @@ class grammar {
 private:
     lexic_wrapper* lexic;
     token w;
-    char temp_operand[2]={'t','0'};
+    int temp_operand_num=0;
 public:
     grammar();
     ~grammar();
@@ -56,4 +56,7 @@ public:
     TVAL CT_type_deduction(string str);//判断常数为double还是int类型
     bool is_iT_defined_in_current_level(string name);//判断标识符在当前作用域中是否已经定义过
     int change_type_to_length(TVAL tval);//获得类型的字节长度
+    void print_quaternion_list();//输出四元式
+    string change_sign_to_string(SIGN sign_enum);//将枚举型的sign转为string
+
 };
