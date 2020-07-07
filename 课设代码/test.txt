@@ -4,13 +4,19 @@ void  main ()
    int b=2;
    int c=3;
    if(a<=b)
-    {
-       c=a;
-       a=b;
-       b=c;
-    }
-
-char   x,y='a';
-c=a+b;
+   {
+      c=a;
+	int a,b=5;
+      while(a+b<c-1)
+       {
+         int a;
+         b=(a+3)/4;
+         int e[3],b[5]={1};
+      }
+   }
+   int d[3]={1,2,3};
+   d[1]=4;
+   char   x,y='a';
+   c=a+b;
 }
 #

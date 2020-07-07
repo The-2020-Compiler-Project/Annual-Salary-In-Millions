@@ -56,8 +56,10 @@ grammar::~grammar()
 void grammar::error(string err_msg="")
 {
     err_msg_list.push_back(err_msg);
+    cout<<err_msg.back();
     cout << "unexpected word: " << w.token_value << endl;
-    exit(1);
+    system("pause");
+    //exit(1);
 }
 void grammar::getToken()
 {
@@ -248,7 +250,7 @@ void grammar::functionBody()
                 OPERAND condition=operand_stack.top();
                 operand_stack.pop();
                 QUATERNION do_quaternion;
-                do_quaternion.sign=SIGN::if_;
+                do_quaternion.sign=SIGN::do_;
                 do_quaternion.operand_1=condition;
                 quaternion_list.push_back(do_quaternion);
 
@@ -541,6 +543,7 @@ void grammar::declaration_2(TVAL tval)
 
             getToken();
             if (w.token_value == "[") {
+                getToken();
                 mathExpression();
                 if (w.token_value == "]") {
 
@@ -676,7 +679,7 @@ void grammar::declaration_2(TVAL tval)
 void grammar::arrayInit(OPERAND operand_array,TVAL tval,int max_subscrip,int current_subscrip)
 {
     if (w.token_value == ",") {
-        if(current_level>max_subscrip){
+        if(current_subscrip>max_subscrip){
             error("Assignment exceeds");
         }
         getToken();
@@ -704,7 +707,7 @@ void grammar::arrayInit(OPERAND operand_array,TVAL tval,int max_subscrip,int cur
         //初始化的位置 ++
         current_subscrip++;
 
-        //数组元素操作填写符号表 构建数组元素的操作数并且压入对象栈 存在数组元素重复填写符号表的问题 符号表中可能有多余的元素
+        //数组元素操作填写符号表 构建数组元素的操作数并且压入对象栈 存在数组元素重复填写符号表的问题 符号表中可能有多余的元素 和错误元素
         SYNBL array_element_synbl;
         array_element_synbl.name=operand_array.name+"["+to_string(current_subscrip)+"]";
         array_element_synbl.cat=CAT::v;
@@ -1041,11 +1044,13 @@ void grammar::A()
         if (w.token_code == PT && w.token_value == "]") {
             getToken();
             assignment();
+
         } else {
             error();
         }
+    }else{
+        assignment();
     }
-    assignment();
 }
 void grammar::B()
 {
@@ -1118,6 +1123,7 @@ void grammar::C(TVAL kind,token temp)
 
             //压入操作数栈
             OPERAND operand;
+            operand.name=temp.token_value;
             operand.position=push_into_synbel_list(array_synbl);
             operand_stack.push(operand);
 
