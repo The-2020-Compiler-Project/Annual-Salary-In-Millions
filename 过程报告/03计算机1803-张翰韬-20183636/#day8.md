@@ -28,9 +28,7 @@
         string OP3;
  }; 
 
-2.
-
-void  fcode::to_code()
+2.void  fcode::to_code()
  {
  	for(auto it= optimize_list.begin();it!=optimize_list.end();it++)
  	{
