@@ -1,3 +1,6 @@
+#ifndef SYM
+#define SYM
+
 #include <stack>
 #include <string>
 #include <vector>
@@ -143,3 +146,4 @@ struct QUATERNION {
     OPERAND operand_2;
     OPERAND operand_3;
 };
+#endif

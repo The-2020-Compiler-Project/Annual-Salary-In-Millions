@@ -13,8 +13,9 @@ string single_PT[s_pt_num] = { "=", ">", "<", "+", "-",
 //双字界符
 string double_PT[d_pt_num] = { ">=", "<=", "==", "&&", "||", "!=" };
 
-lexic::lexic(string para){
-    fileName=para;
+lexic::lexic(string para)
+{
+    fileName = para;
     i_T_num = c_T_num = s_T_num = C_T_num = 1;
 }
 

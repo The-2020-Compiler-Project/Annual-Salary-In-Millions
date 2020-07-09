@@ -1,3 +1,6 @@
+#ifndef LEX
+#define LEX
+
 //调试大于等于
 #include <cstdio>
 #include <iostream>
@@ -40,3 +43,4 @@ private:
     string fileName;
     FILE* f = NULL;
 };
+#endif

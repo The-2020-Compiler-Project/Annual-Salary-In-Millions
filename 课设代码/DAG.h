@@ -1,3 +1,6 @@
+#ifndef DAG
+#define DAG
+
 #include "grammatical_analysis.h"
 #include <stdio.h>
 using namespace std;
@@ -30,3 +33,4 @@ void swap(OPERAND& S1, OPERAND& S2); //交换
 void optimize(int start, int end); //DAG优化
 string sign_to_string(SIGN sign_enum); //字符转字符串
 string display(); //输出优化后的四元式
+#endif

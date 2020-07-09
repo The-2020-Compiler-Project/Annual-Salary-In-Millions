@@ -18,6 +18,8 @@ public:
     void refill_addr_single(OPERAND operand); //反填单个偏移地址
     string get_addr_of_operand(OPERAND operand); //获得操作数的偏移地址
     string get_label(); //获得语句的标号
+    string print_fcode(fcode f);
+
 private: //生成的目标指令
     static int ADDR; //序号地址
     string OP1;

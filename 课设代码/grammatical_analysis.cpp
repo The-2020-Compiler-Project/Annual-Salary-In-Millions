@@ -67,14 +67,9 @@ OPERAND grammar::operand_temp_produce()
 
 void grammar::error(string err_msg = "")
 {
-    string info;
     err_msg_list.push_back(err_msg);
-    for (unsigned i = 0; i < err_msg_list.size(); i++) {
-        info += err_msg_list[i];
-    }
-    info += "unexpected word: " + w.token_value + '\n' + "exiting...";
-    cout << info;
-    exit(1);
+    err_msg_list.push_back("unexpected word: " + w.token_value);
+    return;
 }
 
 void grammar::begin()
@@ -87,11 +82,30 @@ void grammar::begin()
         QUATERNION end_q;
         end_q.sign = SIGN::end_;
         quaternion_list.push_back(end_q);
-        cout << "finished,no error" << endl;
-
-        return;
+        if (err_msg_list.size() == 0)
+            cout << "finished,no error" << endl;
+        else
+            cout << "error occur";
     } else {
         error();
+    }
+}
+
+string grammar::errorManage()
+{
+    if (err_msg_list.size() == 0) {
+        return "";
+    } else {
+        string result;
+        // result+="total error number:"+to_string(err_msg_list.size())+"\n";
+        // result+="error messege shown as below:\n";
+        for (unsigned i = 0; i < err_msg_list.size(); i++) {
+            if (err_msg_list[i] != "") {
+                result += err_msg_list[i] + "\n";
+            }
+        }
+        result += "语法分析出现错误，正在退出...";
+        return result;
     }
 }
 

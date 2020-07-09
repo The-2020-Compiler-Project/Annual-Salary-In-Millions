@@ -1,3 +1,6 @@
+#ifndef GRAM
+#define GRAM
+
 #include "lexical_analysis.h"
 #include "symbol_table.h"
 
@@ -44,6 +47,7 @@ public:
     void error(string err_msg);
     void getToken();
     void begin();
+    string errorManage();
     void program(); //完成
     TVAL type(); //修改用来返回相应的类型，供符号表的填写
     bool isType();
@@ -78,3 +82,4 @@ public:
     string print_quaternion_list(); //输出四元式
     string change_sign_to_string(SIGN sign_enum); //将枚举型的sign转为string
 };
+#endif
