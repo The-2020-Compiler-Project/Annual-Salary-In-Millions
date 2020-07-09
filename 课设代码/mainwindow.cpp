@@ -89,12 +89,14 @@ void MainWindow::on_saveFile_clicked()
     QString dir = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
     QString temp = ui->fileContent->toPlainText();
     QString filePath = QFileDialog::getSaveFileName(this, "save as", dir, "text files(*.txt)");
-    QFile file(filePath);
-    if (file.exists()) {
-        QMessageBox::critical(this, "错误", "文件已存在");
-    } else {
-        file.open(QIODevice::WriteOnly | QIODevice::Text);
-        file.write(temp.toLatin1());
-        QMessageBox::information(this, "成功", "保存文件成功");
+    if (!filePath.isEmpty()){
+        QFile file(filePath);
+        if (file.exists()) {
+            QMessageBox::critical(this, "错误", "文件已存在");
+        } else {
+            file.open(QIODevice::WriteOnly | QIODevice::Text);
+            file.write(temp.toLatin1());
+            QMessageBox::information(this, "成功", "保存文件成功");
+        }
     }
 }
