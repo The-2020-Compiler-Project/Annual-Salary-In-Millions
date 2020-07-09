@@ -1,8 +1,9 @@
 #include "mainwindow.h"
+#include "ui_mainwindow.h"
 #include "QFileDialog"
 #include "QMessageBox"
 #include "QStandardPaths"
-#include "ui_mainwindow.h"
+#include "object_code_generate.h"
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)

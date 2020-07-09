@@ -1,7 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "object_code_generate.h"
 #include <QMainWindow>
 #include <QString>
 
