@@ -1,6 +1,6 @@
 #include "grammatical_analysis.h"
-//开始插入一些语义动作
-// 对词法分析包装内函数的定义
+//开始插入一些语义动
+// 对词法分析包装内函数的定
 
 vector<AINFL> ainfl_list;
 vector<RINFL> rinfl_list;
@@ -78,7 +78,13 @@ void grammar::begin()
     getToken();
     program();
     if (w.token_value == "#") {
+
+        //生成结尾四元式
+        QUATERNION end_q;
+        end_q.sign=SIGN::end_;
+        quaternion_list.push_back(end_q);
         cout << "finished,no error" << endl;
+
         return;
     } else {
         error();
@@ -98,8 +104,8 @@ void grammar::program()
                     getToken();
                     if (w.token_code == PT && w.token_value == "{") {
 						current_level++;
-						//level_it++; 迭代器失效
-						current_level_stack.push_back(current_level);//层次加一，入栈
+						//level_it++; 迭代器失�??
+						current_level_stack.push_back(current_level);//层次加一，入�??
                         getToken();
                         functionBody();
                         if (w.token_code == PT && w.token_value == "}") {
@@ -170,13 +176,13 @@ void grammar::functionBody()
     if (w.token_code == iT) {
         
         
-        //判断是否定义了
+        //判断是否定义�??
         int position=is_iT_defined(w.token_value);
         if(position<0){//若没有定义则进行报错
             error(w.token_value+" not defined");
         }
 
-        //压入符号栈
+        //压入符号�??
         OPERAND iT_operand;
         iT_operand.name=w.token_value;
         iT_operand.position=position;
@@ -192,7 +198,7 @@ void grammar::functionBody()
             expression();
             if (w.token_value == ")") {
 
-                //生成if四元式
+                //生成if四元
                 OPERAND condition=operand_stack.top();
                 operand_stack.pop();
                 QUATERNION if_quaternion;
@@ -207,7 +213,7 @@ void grammar::functionBody()
                     current_level_stack.push_back(current_level);
                     getToken();
                     functionBody();
-                    //生成ie四元式
+                    //生成ie四元
                     QUATERNION ie_quaternion;
                     ie_quaternion.sign=SIGN::ie;
                     quaternion_list.push_back(ie_quaternion);
@@ -234,7 +240,7 @@ void grammar::functionBody()
         }
     } else if (w.token_value == "while") {
 
-        //生成wh四元式
+        //生成wh四元�??
         QUATERNION wh_quaternion;
         wh_quaternion.sign=SIGN::wh;
         quaternion_list.push_back(wh_quaternion);
@@ -245,7 +251,7 @@ void grammar::functionBody()
             expression();
             if (w.token_value == ")") {
 
-                //生成do四元式
+                //生成do四元�??
                 OPERAND condition=operand_stack.top();
                 operand_stack.pop();
                 QUATERNION do_quaternion;
@@ -270,7 +276,7 @@ void grammar::functionBody()
                         getToken();
                         functionBody();
 
-                        //生成ie四元式
+                        //生成ie四元�??
                         QUATERNION we_quaternion;
                         we_quaternion.sign=SIGN::we;
                         quaternion_list.push_back(we_quaternion);
@@ -287,7 +293,7 @@ void grammar::functionBody()
         } else {
             error();
         }
-    } else if (isType()) {//这部分用来判断开头是不是类型，为了填入符号表做准备
+    } else if (isType()) {//这部分用来判断开头是不是类型，为了填入符号表做准�??
         TVAL kind;//用来传类
 		kind=type();//gettoken在type
         declaration(kind);//传入相应的类型给声明,填写符号
@@ -424,7 +430,7 @@ void grammar::logicExpression()
     synbl_temp.level=current_level_stack.back();
     if(synbl_list[one.position].cat==c && synbl_list[two.position].cat==c)//只有两个操作数均为常数时，结果为常数，否则均为变
     synbl_temp.cat=CAT::c;
-    else synbl_temp.cat=CAT::v;
+    else synbl_temp.cat=CAT::tv;
     operand_temp.position=push_into_synbel_list(synbl_temp);//压入符号
 
     //准备产生四元
@@ -603,12 +609,12 @@ void grammar::declaration_2(TVAL tval)
         //弹出对象栈栈顶元素，获得需要初始化的数组A的下标以及偏移地址和类型，通过一个整 i 来记录当前初始化的个
         OPERAND operand_array=operand_stack.top();
         operand_stack.pop();
-        //活动数组的上�?
+        //活动数组的上
         int anifl_positon=synbl_list[operand_array.position].TYPE.addr.position;
         int max_subscrip=ainfl_list[anifl_positon].up;
         int current_subscrip=0;
 
-        //数组元素操作填写符号�? 构建数组元素的操作数并且压入对象 存在数组元素重复填写符号表的问题
+        //数组元素操作填写符号 构建数组元素的操作数并且压入对象 存在数组元素重复填写符号表的问题
         SYNBL array_element_synbl;
         array_element_synbl.name=operand_array.name+"["+to_string(current_subscrip)+"]";
         array_element_synbl.cat=CAT::v;
@@ -795,9 +801,9 @@ void grammar::E1()
         if(synbl_temp.TYPE.tval==TVAL::WRONG_TYPE)//类型不匹
             error("wrong type");
         synbl_temp.level=current_level_stack.back();//level应该是作用域
-		if(synbl_list[one.position].cat==c && synbl_list[two.position].cat==c)//只有两个操作数均为常数时，结果为常数，否则均为变�?
+		if(synbl_list[one.position].cat==c && synbl_list[two.position].cat==c)//只有两个操作数均为常数时，结果为常数，否则均为变�???
             synbl_temp.cat=CAT::c;
-		else synbl_temp.cat=CAT::v;
+		else synbl_temp.cat=CAT::tv;
         operand_temp.position=push_into_synbel_list(synbl_temp);//用来替代迭代
 
 		//准备产生四元
@@ -850,9 +856,9 @@ void grammar::T1()
         if(synbl_temp.TYPE.tval==TVAL::WRONG_TYPE)//类型不匹配的情况
             error("wrong type");
 		synbl_temp.level=current_level_stack.back();
-		if(synbl_list[one.position].cat==c && synbl_list[two.position].cat==c)//只有两个操作数均为常数时，结果为常数，否则均为变�?
+		if(synbl_list[one.position].cat==c && synbl_list[two.position].cat==c)//只有两个操作数均为常数时，结果为常数，否则均为变�???
 		synbl_temp.cat=CAT::c;
-		else synbl_temp.cat=CAT::v;
+		else synbl_temp.cat=CAT::tv;
 		operand_temp.position=push_into_synbel_list(synbl_temp);//压入符号
 
 		//准备产生四元
@@ -1087,7 +1093,7 @@ void grammar::C(TVAL kind,token temp)
 {
     if (w.token_code == PT && w.token_value == "[") {
         getToken();
-        mathExpression();//未完成，先处理算数表达式那部�?
+        mathExpression();//未完成，先处理算数表达式那部
         if (w.token_code == PT && w.token_value == "]") {
 
             //弹出栈顶元素作为数组的大
@@ -1108,7 +1114,7 @@ void grammar::C(TVAL kind,token temp)
             array_synbl.name=temp.token_value;
             array_synbl.cat=CAT::v;
             array_synbl.level=current_level_stack.back();
-            //array_synbl.addr.table=TABLE::lenl;////填写长度�?
+            //array_synbl.addr.table=TABLE::lenl;////填写长度
             //填写数组
             array_synbl.TYPE.tval=TVAL::Array;
             AINFL ainfl;
@@ -1151,32 +1157,47 @@ void grammar::C(TVAL kind,token temp)
 
 
 //用来进行类型的推 目前仅支持int double bool的推 char和string默认返回WRONG_TYPE
-TYPEL grammar::type_deduction(TVAL tval_1,TVAL tval_2)
+TYPEL grammar::type_deduction(TVAL tval_1,TVAL tval_2,SIGN sign)
 {
     TVAL new_tval;
-    if(tval_1==TVAL::Int && tval_2==TVAL::Int)
+    if(sign==SIGN::add)
     {
-        new_tval=TVAL::Int;
+        if(tval_1==TVAL::Int && tval_2==TVAL::Int)
+        {
+            new_tval=TVAL::Int;
+        }
+        else if((tval_1==TVAL::Int && tval_2==TVAL::Double)||(tval_1==TVAL::Double && tval_2==TVAL::Int)||(tval_1==TVAL::Double && tval_2==TVAL::Double))
+        {
+            new_tval=TVAL::Double;
+        }
+        else if((tval_1==TVAL::Bool && tval_2==TVAL::Bool))
+        {
+            new_tval=TVAL::Bool;
+        }
+        else if((tval_1==TVAL::Char && tval_2==TVAL::Char))
+        {
+            new_tval=TVAL::Char;
+        }
+        else if((tval_1==TVAL::String && tval_2==TVAL::String))
+        {
+            new_tval=TVAL::String;
+        }
+        else
+        {
+            new_tval=TVAL::WRONG_TYPE;
+        }
     }
-    else if((tval_1==TVAL::Int && tval_2==TVAL::Double)||(tval_1==TVAL::Double && tval_2==TVAL::Int)||(tval_1==TVAL::Double && tval_2==TVAL::Double))
+    if(sign==SIGN::is_equal||sign==SIGN::larger||sign==SIGN::larger_equal||sign==SIGN::smaller
+    ||sign==SIGN::smaller_equal||sign==SIGN::not_equal)
     {
-        new_tval=TVAL::Double;
-    }
-    else if((tval_1==TVAL::Bool && tval_2==TVAL::Bool))
-    {
-        new_tval=TVAL::Bool;
-    }
-    else if((tval_1==TVAL::Char && tval_2==TVAL::Char))
-    {
-        new_tval=TVAL::Char;
-    }
-    else if((tval_1==TVAL::String && tval_2==TVAL::String))
-    {
-        new_tval=TVAL::String;
-    }
-    else
-    {
-        new_tval=TVAL::WRONG_TYPE;
+        if(tval_1==TVAL::Char||tval_1==TVAL::String||tval_2==TVAL::Char||tval_2==TVAL::String)
+        {
+            new_tval=TVAL::WRONG_TYPE;
+        }
+        else
+        {
+            new_tval=TVAL::Bool;
+        }
     }
     TYPEL new_typel;
     new_typel.tval=new_tval;
@@ -1258,7 +1279,7 @@ bool grammar::is_iT_defined_in_current_level(string name)
     return false;
 }
 
-//获得类型的字节长
+//获得类型的字�?
 int grammar::change_type_to_length(TVAL tval)
 {
     switch (tval)
@@ -1381,9 +1402,26 @@ string grammar::change_sign_to_string(SIGN sign_enum)
     case SIGN::do_ :
         sign="DO";
         break;
-        
+
+    case SIGN::end_:
+        sign="END";
+        break;
+
     default:
         break;
     }
     return sign;
+}
+
+vector<SYNBL> get_synbl_list() 
+{
+     return synbl_list;
+ }
+vector<QUATERNION> get_quaternion_list() 
+{
+     return quaternion_list;
+} 
+vector<double> get_const_int_double_list() 
+{     
+return const_int_double_list; 
 }

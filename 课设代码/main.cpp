@@ -1,25 +1,41 @@
 #include "object_code_generate.cpp"
 
 
+
 int main()
 {
+
+    //Óï·¨ÓïÒå·ÖÎö
+
     grammar* test = new grammar();
+
     test->begin();
 
-    optimize_list=quaternion_list;
-
-    cout<<"ç”Ÿæˆçš„å››å…ƒå¼ä¸ºï¼š"<<endl;
+    cout<<"Éú³ÉµÄËÄÔªÊ½Îª£º"<<endl;
 
     test->print_quaternion_list();
 
     cout<<endl;
 
+    //ÓÅ»¯
+
+    divide();
+
+    cout<<"ÓÅ»¯ºóµÄËÄÔªÊ½Îª£º"<<endl;
+
+    display();
+
+    //Ä¿±ê´úÂëÉú³É
+
+    /*optimize_list=quaternion_list;
+
     fcode* fcode_test = new fcode();
 
     fcode_test->to_code();
 
-    cout<<"ç”Ÿæˆçš„ç›®æ ‡ä»£ç ä¸ºï¼š"<<endl;
-    fcode_test->print_fcode_array();
+    cout<<"Éú³ÉµÄÄ¿±ê´úÂëÎª£º"<<endl;
+
+    fcode_test->print_fcode_array();*/
 
     system("pause");
     return 0;
