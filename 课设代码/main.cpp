@@ -1,4 +1,4 @@
-#include "object_code_generate.cpp"
+#include "object_code_generate.h"
 
 int main()
 {
@@ -24,10 +24,6 @@ int main()
     display();
 
     //目标代码生成
-
-    optimize_list = QT;
-
-    //cout<<optimize_list.size();
 
     fcode* fcode_test = new fcode();
 

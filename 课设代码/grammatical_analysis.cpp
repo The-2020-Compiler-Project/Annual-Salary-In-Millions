@@ -1,6 +1,6 @@
 #include "grammatical_analysis.h"
-//开始插入一些语义动
-// 对词法分析包装内函数的定
+//开始插入一些语义动作
+// 对词法分析包装内函数的定义
 
 vector<AINFL> ainfl_list;
 vector<RINFL> rinfl_list;

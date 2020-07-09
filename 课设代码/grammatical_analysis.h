@@ -1,5 +1,23 @@
-#include "lexical_analysis.cpp"
+#include "lexical_analysis.h"
 #include "symbol_table.h"
+
+extern vector<AINFL> ainfl_list;
+extern vector<RINFL> rinfl_list;
+extern vector<FPL> fpl_list;
+extern vector<PFINFL> pfinfl_list;
+extern int current_level;
+extern stack<SIGN> sign_stack;
+extern stack<OPERAND> operand_stack;
+extern vector<string> err_msg_list;
+extern vector<QUATERNION> quaternion_list;
+extern vector<TYPEL> typel_list;
+extern vector<double> const_int_double_list;
+extern vector<string> const_char_list;
+extern vector<string> const_string_list;
+extern vector<int> LENL;
+extern vector<SYNBL> synbl_list;
+extern vector<int> current_level_stack;
+
 /*语法分析部分开始*/
 // 包装词法分析，提供getToken函数
 class lexic_wrapper {

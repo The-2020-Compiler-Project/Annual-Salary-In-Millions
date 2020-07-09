@@ -5,6 +5,14 @@ vector<QUATERNION> QT;
 vector<OPERAND> node_list;
 vector<Dnode> NODE;
 
+Dnode::Dnode()
+{
+    isLeaf = true;
+    iscval = false;
+    label_num = 0;
+    //需要给叶子节点设一个运算符
+}
+
 //-------------------------------------------------------
 void divide() //划分基本块
 {

@@ -1,6 +1,8 @@
-#include "grammatical_analysis.cpp"
+#include "grammatical_analysis.h"
 #include <stdio.h>
 using namespace std;
+
+extern vector<QUATERNION> QT;
 
 struct Dnode {
     int num; //节点编号
@@ -13,13 +15,6 @@ struct Dnode {
     OPERAND label[10]; //该结点的主从标记
     Dnode();
 };
-Dnode::Dnode()
-{
-    isLeaf = true;
-    iscval = false;
-    label_num = 0;
-    //需要给叶子节点设一个运算符
-}
 void divide(); //划分基本块;
 int isdefine(string op); //判断op是否被定义过
 int innode(string op); //op在node_list的位置

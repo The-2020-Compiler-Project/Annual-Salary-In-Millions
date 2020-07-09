@@ -1,8 +1,4 @@
-#include "DAG.cpp"
-#include <iostream>
-#include <sstream>
-#include <stack>
-#include <vector>
+#include "object_code_generate.h"
 using namespace std;
 //单寄存器AX
 int flag = 0; //flag=0表示寄存器AX可用
@@ -13,27 +9,6 @@ vector<int> processed_syn_position;
 int current_offset = 0;
 OPERAND RDL;
 
-vector<QUATERNION> optimize_list; //优化后的四元式接口
-class fcode {
-public:
-    void print_fcode_array();
-    void to_code();
-    void add(string op, string op1, string op2);
-    void add_not_label(string op, string op1, string op2); //不带标号的移动
-    void fill_addr(int p); //用来反填跳转地址
-    bool is_processed(int position); //用来判断是否已经填写了偏移地址
-    int get_element_num(string name); //获取偏移量
-    int get_length_for_type(TVAL tval); //获取类型的字节大小
-    void refill_addr(); //反填符号表中的偏移地址
-    void refill_addr_single(OPERAND operand); //反填单个偏移地址
-    string get_addr_of_operand(OPERAND operand); //获得操作数的偏移地址
-    string get_label(); //获得语句的标号
-private: //生成的目标指令
-    static int ADDR; //序号地址
-    string OP1;
-    string OP2;
-    string OP3;
-};
 int fcode::ADDR = 0;
 vector<fcode> fcode_arrary; //存放生成的目标指令
 void fcode::fill_addr(int p)
@@ -132,10 +107,10 @@ void fcode::refill_addr_single(OPERAND operand)
 }
 void fcode::refill_addr()
 {
-    for (unsigned i = 0; i < optimize_list.size(); i++) {
-        refill_addr_single(optimize_list[i].operand_1);
-        refill_addr_single(optimize_list[i].operand_2);
-        refill_addr_single(optimize_list[i].operand_3);
+    for (unsigned i = 0; i < QT.size(); i++) {
+        refill_addr_single(QT[i].operand_1);
+        refill_addr_single(QT[i].operand_2);
+        refill_addr_single(QT[i].operand_3);
     }
 }
 
@@ -169,7 +144,7 @@ string fcode::get_label()
 
 void fcode::to_code()
 {
-    //cout<<optimize_list.size();
+    //cout<<QT.size();
 
     fcode f;
     f.add_not_label("DSEG SEGMENT", "", "");
@@ -191,7 +166,7 @@ void fcode::to_code()
     fcode_arrary.push_back(f);
 
     //后面是生成正常的指令
-    for (auto it = optimize_list.begin(); it != optimize_list.end(); it++) {
+    for (auto it = QT.begin(); it != QT.end(); it++) {
         QUATERNION temp;
         temp = *it;
         //赋值语句
