@@ -1,3 +1,6 @@
+#ifndef LEX
+#define LEX
+
 //调试大于等于
 #include <cstdio>
 #include <iostream>
@@ -25,10 +28,9 @@ struct token {
 //Token表定义
 class lexic {
 public:
-    lexic() { i_T_num = c_T_num = s_T_num = C_T_num = 1; };
+    lexic(string);
     void open_file(); //打开测试文件
     void close_file(); //关闭测试文件a
-    FILE* f = NULL;
     //运行中自动填充的表
     int i_T_num, c_T_num, s_T_num, C_T_num; //分别为四个表计数；
     bool lexic_analyze(); //词法分析函数
@@ -37,4 +39,8 @@ public:
     int token_code(int s_before, string value); //通过所处的状态，生成token的序号并存储到相应的表中
     int token_kind(int s_before, string value); //返回token所处的类型
     vector<token> token_list; //保存词法分析所得的token串
+private:
+    string fileName;
+    FILE* f = NULL;
 };
+#endif

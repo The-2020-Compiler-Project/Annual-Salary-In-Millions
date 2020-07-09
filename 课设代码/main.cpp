@@ -1,8 +1,11 @@
-#include "grammatical_analysis.h"
+#include "mainwindow.h"
 
-int main()
+#include <QApplication>
+
+int main(int argc, char* argv[])
 {
-    grammar* test = new grammar();
-    test->begin();
-    return 0;
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
+    return a.exec();
 }

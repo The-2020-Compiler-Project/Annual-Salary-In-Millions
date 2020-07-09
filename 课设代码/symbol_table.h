@@ -1,8 +1,10 @@
+#ifndef SYM
+#define SYM
+
 #include <stack>
 #include <string>
 #include <vector>
 using namespace std;
-
 //按照实际进行修改
 enum CAT { f,
     c,
@@ -10,49 +12,62 @@ enum CAT { f,
     d,
     v,
     vn,
-    vf };
+    vf,
+    tv //临时变量
+};
 //按照实际进行修改
 enum TVAL { Int,
     Double,
     String,
     Char,
-	Const_int,
-	Const_double,
-	Const_char,
-	Const_string,
+    Bool,
     Array,
-	};
+    WRONG_TYPE //用于返回类型不匹配的
+}; //这部分是为了填符号表的时候确定相应的类型
+//总表和符号表中的addr的修正
+enum TABLE {
+    const_int_double,
+    const_char,
+    const_string,
+    lenl,
+    ainfl,
+    rinfl,
+    synbl
+};
+struct ADDR {
+    TABLE table;
+    int position;
+};
 //类型表
 struct TYPEL {
     TVAL tval;
-    void* tpoint;
+    ADDR addr;
 };
-vector<TYPEL> typel_list;
-
-//各个常数表
-vector<int> const_int_list;
-vector<float> const_float_list;
-vector<char> const_char_list;
-vector<string> const_string_list;
 
 //总表
 struct SYNBL {
     string name;
-    TYPEL* TYPE;
+    TYPEL TYPE;
     CAT cat;
     int level; //作用域标号
-    void* addr; //改为偏移地址 注意数组类型的偏移地址有不确定性
+    int offset_add; //偏移地址
+    ADDR addr;
 };
-vector<SYNBL> synbel_list;
+
+//迭代器会失效
+//vector<SYNBL>::iterator synbel_it = synbel_list.begin();//用来标记符号表填入的当前位置，便符号表的管理
+//先++synbel_it，再压入符号表
+
+//长度表，自定义类型需要指过去
 
 //数组表
 struct AINFL {
     int low;
     int up;
-    TYPEL* ctp;
+    int ctp; //没用复杂数据类型的时候暂时用不上
+    TVAL tval;
     int clen;
 };
-vector<AINFL> ainfl_list;
 
 //结构表 暂时用不到
 struct RINFL {
@@ -60,7 +75,6 @@ struct RINFL {
     int off;
     TYPEL* tp;
 };
-vector<RINFL> rinfl_list;
 
 //形参表
 struct FPL {
@@ -70,7 +84,6 @@ struct FPL {
     int level; //对应活动记录中的第几层
     int off; //对应的偏移地址
 };
-vector<FPL> fpl_list;
 
 //函数表
 struct PFINFL {
@@ -81,7 +94,6 @@ struct PFINFL {
     FPL* fpl_pointer;
     int data_long; //该函数中需要开辟的空间的大小 为了目标代码生成服务
 };
-vector<PFINFL> pfinfl_list;
 
 //标识符表 为了方便判断是否重定义以及类型是否匹配 额外设立一个标识符表
 struct IDENTIFY {
@@ -91,9 +103,8 @@ struct IDENTIFY {
 };
 
 //已分配作用域标号
-int current_level;
+
 //作用域栈
-stack<int> current_level_stcak;
 
 //四元式符号
 enum SIGN {
@@ -101,25 +112,32 @@ enum SIGN {
     sub,
     multi,
     div_,
-    equal,
+    equal, //赋值 =
+    is_equal, //相当 ==
     not_equal,
     larger,
     smaller,
     larger_equal,
     smaller_equal,
     and_,
-    or_
+    or_,
+    if_,
+    ie,
+    wh,
+    we,
+    else_,
+    do_,
+    end_
 };
 //操作符栈
-stack<SIGN> sign_stack;
 
 //操作数结构
 struct OPERAND {
     string name;
-    SYNBL* pointer;
+    //vector<SYNBL>::iterator pointer;//配合着synbel_it,共同确定相应的符号表的位置
+    int position;
 };
 //对象栈
-stack<OPERAND> operand_stack;
 
 //四元式结构体
 struct QUATERNION {
@@ -128,5 +146,4 @@ struct QUATERNION {
     OPERAND operand_2;
     OPERAND operand_3;
 };
-vector<QUATERNION> quaternion_list;
-
+#endif

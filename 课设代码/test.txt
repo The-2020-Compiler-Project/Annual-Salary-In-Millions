@@ -3,14 +3,20 @@ void  main ()
    int   a=1;
    int b=2;
    int c=3;
-   if(a<=d)
-    {
-       c=a;
-       a=d;
-       d=c;
-    }
-
-char   x,y='a';
-c=a+d;
+   if(a<=b)
+   {
+      c=a;
+	int a,b=5;
+      while(a+b<c-1)
+       {
+         int a;
+         b=(a+3)/4;
+         int e[3],b[5]={1};
+      }
+   }
+   int d[3]={1,2,3};
+   d[1]=4;
+   char   x,y='a';
+   c=a+b;
 }
 #

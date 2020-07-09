@@ -13,9 +13,15 @@ string single_PT[s_pt_num] = { "=", ">", "<", "+", "-",
 //双字界符
 string double_PT[d_pt_num] = { ">=", "<=", "==", "&&", "||", "!=" };
 
+lexic::lexic(string para)
+{
+    fileName = para;
+    i_T_num = c_T_num = s_T_num = C_T_num = 1;
+}
+
 void lexic::open_file()
 {
-    f = fopen("test.txt", "r"); //  进行打开文件
+    f = fopen(fileName.c_str(), "r"); //  进行打开文件
     if (f == NULL) {
         cout << "failed to open file." << endl;
         exit(0);
@@ -29,9 +35,7 @@ void lexic::close_file()
 }
 bool lexic::lexic_analyze()
 {
-    int kind;
     int s_now = 1, s_before; //当前状态和之前状态
-    int token_n = 0; //token表的下标
     char buffer; //每次读入的字符
     token temp;
     temp.token_value = ""; //初始化一下临时存放单元
