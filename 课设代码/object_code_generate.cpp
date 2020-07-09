@@ -125,11 +125,12 @@ void fcode::refill_addr_single(OPERAND operand)
 				//若数组母元素还没有处理则先处理
 				if(!is_processed(array_position))
 				{
-					int ainfl_position= synbl_list[position].TYPE.addr.position;
+					TVAL tval_=synbl_list[array_position].TYPE.tval;
+					int ainfl_position= synbl_list[array_position].TYPE.addr.position;
 					int size=ainfl_list[ainfl_position].up+1;
 					TVAL tval=ainfl_list[ainfl_position].tval;
 					int each_length=get_length_for_type(tval);
-					synbl_list[position].offset_add=current_offset;
+					synbl_list[array_position].offset_add=current_offset;
 					current_offset=current_offset+each_length*size;
 					processed_syn_position.push_back(array_position);
 				}
@@ -172,8 +173,15 @@ string fcode::get_addr_of_operand(OPERAND operand)
 	}
 	else if(synbl.cat==CAT::c)
 	{
-		int num= const_int_double_list[synbl.addr.position];
-		return to_string(num);
+		if(synbl.TYPE.tval==TVAL::Int)
+		{
+			int num= const_int_double_list[synbl.addr.position];
+			return to_string(num);
+		}
+		else if(synbl.TYPE.tval==TVAL::Char)
+		{
+			return const_char_list[synbl.addr.position];
+		}
 	}
 }
 
@@ -220,8 +228,7 @@ void  fcode::to_code()
 			if(RDL.position!=temp.operand_1.position)
 			{
 				fcode f1,f2;
-				string offset=get_addr_of_operand(temp.operand_1);
-				f1.add("MOV","AX",offset);
+				f1.add("MOV","AX",get_addr_of_operand(temp.operand_1));
 				f2.add("MOV",get_addr_of_operand(temp.operand_3),"AX");
 				fcode_arrary.push_back(f1);
 				fcode_arrary.push_back(f2);
@@ -389,9 +396,11 @@ void  fcode::to_code()
 			fcode f3,f4;
 			f3.add_not_label("CSEG ENDS","","");
 			f4.add_not_label("END C1","","");
+
+			fcode_arrary.push_back(f3);
+			fcode_arrary.push_back(f4);
 		}
 	}
-	fcode_arrary.push_back(f);//结尾 
 }
 void fcode::print_fcode_array()
 {
