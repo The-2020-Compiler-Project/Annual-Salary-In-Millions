@@ -2,64 +2,59 @@
 int dagnum = 0;
 int nodevalue = 0;
 vector<QUATERNION> QT;
-vector<OPERAND> node_list; 
-vector<Dnode>NODE;
+vector<OPERAND> node_list;
+vector<Dnode> NODE;
 
 //-------------------------------------------------------
-void divide() //»®·Ö»ù±¾¿é
+void divide() //åˆ’åˆ†åŸºæœ¬å—
 {
     int count;
     int start = 0;
     int end = 0;
-int exists;
+    int exists;
     for (count = 0; count < quaternion_list.size(); count++) {
         start = end;
-        if(quaternion_list[count].sign==SIGN::ie||quaternion_list[count].sign==SIGN::else_||quaternion_list[count].sign==SIGN::if_||quaternion_list[count].sign==SIGN::we||
-        quaternion_list[count].sign==SIGN::wh||quaternion_list[count].sign==SIGN::do_||quaternion_list[count].sign==SIGN::end_)
-        exists=1;
-        else
-        {
-            exists=0;
+        if (quaternion_list[count].sign == SIGN::ie || quaternion_list[count].sign == SIGN::else_ || quaternion_list[count].sign == SIGN::if_ || quaternion_list[count].sign == SIGN::we || quaternion_list[count].sign == SIGN::wh || quaternion_list[count].sign == SIGN::do_ || quaternion_list[count].sign == SIGN::end_)
+            exists = 1;
+        else {
+            exists = 0;
         }
-        
-        if (exists) 
-        {
+
+        if (exists) {
             dagnum = 0;
             nodevalue = 0;
             NODE.clear();
-            
+
             node_list.clear();
-            end = count; //»ù±¾¿é½áÊø
-           
-            if(end!=start)
-            {optimize(start, end);//Ò»¸ö»ù±¾¿éµÄ¿ªÊ¼ºÍ½áÊø           
-            opti_Quaternion(); //½«Ò»¸ö»ù±¾¿éÓÅ»¯ºóµÄËÄÔªÊ½¼ÓÈë
+            end = count; //åŸºæœ¬å—ç»“æŸ
+
+            if (end != start) {
+                optimize(start, end); //ä¸€ä¸ªåŸºæœ¬å—çš„å¼€å§‹å’Œç»“æŸ
+                opti_Quaternion(); //å°†ä¸€ä¸ªåŸºæœ¬å—ä¼˜åŒ–åçš„å››å…ƒå¼åŠ å…¥
             }
-            QT.push_back(quaternion_list[count]); //½«»ù±¾¿é½áÊøµÄËÄÔªÊ½¼ÓÈë
-            end = count + 1; //ÒòÎªÒª»ñµÃĞÂµÄstart
+            QT.push_back(quaternion_list[count]); //å°†åŸºæœ¬å—ç»“æŸçš„å››å…ƒå¼åŠ å…¥
+            end = count + 1; //å› ä¸ºè¦è·å¾—æ–°çš„start
             continue;
         }
-       
     }
 }
-void opti_Quaternion() //Éú³ÉÓÅ»¯ºóµÄËÄÔªÊ½
+void opti_Quaternion() //ç”Ÿæˆä¼˜åŒ–åçš„å››å…ƒå¼
 {
     int i, j;
     QUATERNION quat;
     for (i = 0; i < dagnum; i++) {
 
-        if (NODE[i].isLeaf==false) //²»ÊÇÒ¶×Ó½Úµã
+        if (NODE[i].isLeaf == false) //ä¸æ˜¯å¶å­èŠ‚ç‚¹
         {
             quat.sign = NODE[i].oper;
             quat.operand_1 = NODE[NODE[i].lchild].label[0];
             quat.operand_2 = NODE[NODE[i].rchild].label[0];
             quat.operand_3 = NODE[i].label[0];
             QT.push_back(quat);
-           
         }
         if (NODE[i].label_num > 1) {
             for (j = 1; j < NODE[i].label_num; j++) {
-                if (!istemp(NODE[i].label[j])) //²»ÊÇÁÙÊ±±äÁ¿
+                if (!istemp(NODE[i].label[j])) //ä¸æ˜¯ä¸´æ—¶å˜é‡
                 {
                     quat.sign = SIGN::equal;
                     quat.operand_1 = NODE[i].label[0];
@@ -69,15 +64,12 @@ void opti_Quaternion() //Éú³ÉÓÅ»¯ºóµÄËÄÔªÊ½
                 }
             }
         }
-       
-
-
     }
 }
-void display() //Êä³öÓÅ»¯ºóµÄËÄÔªÊ½
+void display() //è¾“å‡ºä¼˜åŒ–åçš„å››å…ƒå¼
 {
     int i;
-    
+
     for (i = 0; i < QT.size(); i++) {
         QUATERNION q = QT[i];
         string sign = sign_to_string(q.sign);
@@ -93,7 +85,7 @@ void display() //Êä³öÓÅ»¯ºóµÄËÄÔªÊ½
         cout << '(' << sign << ',' << op1 << ',' << op2 << ',' << op3 << ')' << endl;
     }
 }
-string sign_to_string(SIGN sign_enum) //×Ö·û×ª×Ö·û´®
+string sign_to_string(SIGN sign_enum) //å­—ç¬¦è½¬å­—ç¬¦ä¸²
 {
     string sign;
     switch (sign_enum) {
@@ -169,15 +161,15 @@ string sign_to_string(SIGN sign_enum) //×Ö·û×ª×Ö·û´®
         sign = "DO";
         break;
     case SIGN::end_:
-    sign="END";
-    break;
+        sign = "END";
+        break;
 
     default:
         break;
     }
     return sign;
 }
-int isdefine(string op) //ÅĞ¶ÏopÊÇ·ñ±»¶¨Òå¹ı
+int isdefine(string op) //åˆ¤æ–­opæ˜¯å¦è¢«å®šä¹‰è¿‡
 {
     int t;
     OPERAND v;
@@ -189,7 +181,7 @@ int isdefine(string op) //ÅĞ¶ÏopÊÇ·ñ±»¶¨Òå¹ı
     return -1;
 }
 
-int innode(string op) //opÔÚnode_listµÄÎ»ÖÃ
+int innode(string op) //opåœ¨node_listçš„ä½ç½®
 {
     int t;
     OPERAND v;
@@ -202,82 +194,80 @@ int innode(string op) //opÔÚnode_listµÄÎ»ÖÃ
     }
     return -1;
 }
-bool istemp(OPERAND temp) //ÊÇ·ñÊÇÁÙÊ±±äÁ¿
-{string str=temp.name;
-int n=str.size();
-if((str[0]>=48&&str[0]<=57)&&(str[n-1]=='t'))
-    
+bool istemp(OPERAND temp) //æ˜¯å¦æ˜¯ä¸´æ—¶å˜é‡
+{
+    string str = temp.name;
+    int n = str.size();
+    if ((str[0] >= 48 && str[0] <= 57) && (str[n - 1] == 't'))
+
         return true;
     else
         return false;
 }
-bool iscv(OPERAND op) //ÊÇ·ñÊÇ³£Êı
+bool iscv(OPERAND op) //æ˜¯å¦æ˜¯å¸¸æ•°
 {
     if (synbl_list[op.position].cat == CAT::c)
         return true;
     else
         return false;
 }
-void del(OPERAND res, int newnum, int oldnum) //É¾³ı¸Ã½á¹ûµÄÆäËûÎ»ÖÃ
+void del(OPERAND res, int newnum, int oldnum) //åˆ é™¤è¯¥ç»“æœçš„å…¶ä»–ä½ç½®
 {
-    int nodeposition = innode(res.name); //»ñÈ¡½á¹ûÔÚnode_listµÄÎ»ÖÃ£¬Òª¸Ä±äËûµÄ±àºÅ
+    int nodeposition = innode(res.name); //è·å–ç»“æœåœ¨node_listçš„ä½ç½®ï¼Œè¦æ”¹å˜ä»–çš„ç¼–å·
     node_list[nodeposition].position = newnum;
     NODE[oldnum].label_num--;
     int i;
     for (i = 0; i < NODE[oldnum].label_num; i++) {
-        if ((res.name == NODE[oldnum].label[i].name) && (i != 0)) //Ö÷±ê¼ÇÃâÉ¾
+        if ((res.name == NODE[oldnum].label[i].name) && (i != 0)) //ä¸»æ ‡è®°å…åˆ 
         {
             for (int j = i + 1; j < NODE[oldnum].label_num; j++)
-                NODE[oldnum].label[j - 1] = NODE[oldnum].label[j]; //É¾³ı¸Ã±ê¼Ç£¬ÍùÇ°ÒÆÒ»¸ö
+                NODE[oldnum].label[j - 1] = NODE[oldnum].label[j]; //åˆ é™¤è¯¥æ ‡è®°ï¼Œå¾€å‰ç§»ä¸€ä¸ª
             break;
         }
     }
 }
 
-void fuzhi(OPERAND op, OPERAND res) //¸³ÖµËÄÔªÊ½
+void fuzhi(OPERAND op, OPERAND res) //èµ‹å€¼å››å…ƒå¼
 {
-    int dnum; //resµÄ½áµã±àºÅ
+    int dnum; //resçš„ç»“ç‚¹ç¼–å·
     int isdef;
-   
-    isdef = isdefine(op.name); //µÚÒ»¸ö²Ù×÷ÊıÊÇ·ñÒÑ´æÔÚ
+
+    isdef = isdefine(op.name); //ç¬¬ä¸€ä¸ªæ“ä½œæ•°æ˜¯å¦å·²å­˜åœ¨
     int isdefres;
-    isdefres = isdefine(res.name); //½á¹ûÊÇ·ñ±»¶¨Òå¹ı
-    if (isdef==-1) //µÚÒ»¸ö²Ù×÷ÊıÃ»ÓĞ¶¨Òå£¬Òª½¨½Úµã£¬²¢¼ÓÈënode_list
-    { 
+    isdefres = isdefine(res.name); //ç»“æœæ˜¯å¦è¢«å®šä¹‰è¿‡
+    if (isdef == -1) //ç¬¬ä¸€ä¸ªæ“ä½œæ•°æ²¡æœ‰å®šä¹‰ï¼Œè¦å»ºèŠ‚ç‚¹ï¼Œå¹¶åŠ å…¥node_list
+    {
         node_list.push_back(op);
-        node_list[nodevalue].position = dagnum; //ĞŞ¸ÄËûµÄpositionÎªÍ¼½áµãµÄ±àºÅ£¬·½±ãÉ¾³ı  
+        node_list[nodevalue].position = dagnum; //ä¿®æ”¹ä»–çš„positionä¸ºå›¾ç»“ç‚¹çš„ç¼–å·ï¼Œæ–¹ä¾¿åˆ é™¤
         Dnode DN;
         DN.num = dagnum;
         DN.isLeaf = true;
         DN.iscval = iscv(op);
-        DN.oper=SIGN::equal;
+        DN.oper = SIGN::equal;
         DN.label_num = 2;
         DN.label[0] = op;
-        DN.label[1] = res; //½á¹û¸³¸øËü
+        DN.label[1] = res; //ç»“æœèµ‹ç»™å®ƒ
         NODE.push_back(DN);
         dnum = dagnum;
         dagnum++;
         nodevalue++;
-       
-    } 
-    else //µÚÒ»¸ö²Ù×÷Êı±»¶¨ÒåÁË£¬½«½á¹û×÷ÎªËûµÄ±ê¼Ç
+
+    } else //ç¬¬ä¸€ä¸ªæ“ä½œæ•°è¢«å®šä¹‰äº†ï¼Œå°†ç»“æœä½œä¸ºä»–çš„æ ‡è®°
     {
         dnum = isdef;
         NODE[isdef].label[NODE[isdef].label_num] = res;
         NODE[isdef].label_num++;
-        
     }
 
-   
-    if (isdefres != -1) //½á¹ûÒÑ´æÔÚ£¬Èç¹û²»ÊÇÖ÷±ê¼ÇÒªÉ¾³ı
+    if (isdefres != -1) //ç»“æœå·²å­˜åœ¨ï¼Œå¦‚æœä¸æ˜¯ä¸»æ ‡è®°è¦åˆ é™¤
         del(res, dnum, isdefres);
-    else //Ã»ÓĞ±»¶¨Òå¹ı£¬Òª¼ÓÈënode_list
+    else //æ²¡æœ‰è¢«å®šä¹‰è¿‡ï¼Œè¦åŠ å…¥node_list
     {
         node_list.push_back(res);
         node_list[nodevalue].position = dnum;
         nodevalue++;
     }
-    if (istemp(NODE[dnum].label[0])) //Èç¹ûÊÇÁÙÊ±±äÁ¿£¬½»»»Î»ÖÃ
+    if (istemp(NODE[dnum].label[0])) //å¦‚æœæ˜¯ä¸´æ—¶å˜é‡ï¼Œäº¤æ¢ä½ç½®
     {
         swap(NODE[dnum].label[0], NODE[dnum].label[NODE[dnum].label_num - 1]);
     }
@@ -285,7 +275,7 @@ void fuzhi(OPERAND op, OPERAND res) //¸³ÖµËÄÔªÊ½
         NODE[dnum].iscval = true;
     else
         NODE[dnum].iscval = false;
-        return;
+    return;
 }
 double getcval(OPERAND op)
 {
@@ -319,36 +309,36 @@ double compare(double a, double b, SIGN s)
     if (s == SIGN::or_)
         return (a or b);
 }
-void binaryoperator(SIGN s, OPERAND op1, OPERAND op2, OPERAND op3) //Ë«Ä¿ÔËËã
+void binaryoperator(SIGN s, OPERAND op1, OPERAND op2, OPERAND op3) //åŒç›®è¿ç®—
 {
-int i;
+    int i;
     int isdef1;
-    isdef1 = isdefine(op1.name); //µÚÒ»¸ö²Ù×÷ÊıÊÇ·ñÒÑ´æÔÚ
+    isdef1 = isdefine(op1.name); //ç¬¬ä¸€ä¸ªæ“ä½œæ•°æ˜¯å¦å·²å­˜åœ¨
     int isdef2;
-    isdef2 = isdefine(op2.name); //½á¹ûÊÇ·ñ±»¶¨Òå¹ı
+    isdef2 = isdefine(op2.name); //ç»“æœæ˜¯å¦è¢«å®šä¹‰è¿‡
     int isdef3;
     isdef3 = isdefine(op3.name);
-    int renum; //±£´æµ±Ç°½ÚµãµÄ±àºÅ£¬ÓÃ»§¸ü»»ÁÙÊ±±äÁ¿
-    double c; //Á½¸öÊı¶¼ÊÇ³£Êı
+    int renum; //ä¿å­˜å½“å‰èŠ‚ç‚¹çš„ç¼–å·ï¼Œç”¨æˆ·æ›´æ¢ä¸´æ—¶å˜é‡
+    double c; //ä¸¤ä¸ªæ•°éƒ½æ˜¯å¸¸æ•°
     double c1, c2;
-    if (iscv(op1) && iscv(op2)) //Á½¸öÊı¶¼ÊÇ³£Êı,¼ÆËã³öc
+    if (iscv(op1) && iscv(op2)) //ä¸¤ä¸ªæ•°éƒ½æ˜¯å¸¸æ•°,è®¡ç®—å‡ºc
     {
         c1 = getcval(op1);
         c2 = getcval(op2);
         c = compare(c1, c2, s);
-        string str = to_string(c); //½«c×ª»»Îª×Ö·û´®
-        int isdefc = isdefine(str); //ÅĞ¶Ï¸Ã³£ÊıÊÇ·ñ´æÔÚ
-        if (isdefc != -1) //´æÔÚ
+        string str = to_string(c); //å°†cè½¬æ¢ä¸ºå­—ç¬¦ä¸²
+        int isdefc = isdefine(str); //åˆ¤æ–­è¯¥å¸¸æ•°æ˜¯å¦å­˜åœ¨
+        if (isdefc != -1) //å­˜åœ¨
         {
             renum = isdefc;
 
-            if (isdef3 == -1) //µÚÈı¸öÊı¶¨Òå¹ıÁË
+            if (isdef3 == -1) //ç¬¬ä¸‰ä¸ªæ•°å®šä¹‰è¿‡äº†
             {
                 del(op3, isdefc, isdef3);
-                //°ÑµÚ3¸öÊıÓëc·ÅÔÚÍ¬Ò»¸ö½Úµã
+                //æŠŠç¬¬3ä¸ªæ•°ä¸cæ”¾åœ¨åŒä¸€ä¸ªèŠ‚ç‚¹
                 NODE[isdefc].label[NODE[isdefc].label_num] = op3;
                 NODE[isdefc].label_num++;
-            } else //Ã»ÓĞ¶¨Òå¹ı£¬Ö±½Ó¼Ó½øÀ´¾Í¿É
+            } else //æ²¡æœ‰å®šä¹‰è¿‡ï¼Œç›´æ¥åŠ è¿›æ¥å°±å¯
             {
                 node_list[nodevalue] = op3;
                 node_list[nodevalue].position = isdefc;
@@ -356,7 +346,7 @@ int i;
                 NODE[isdefc].label[NODE[isdefc].label_num] = op3;
                 NODE[isdefc].label_num++;
             }
-        } else //³£Êıc²»´æÔÚ£¬ÒªÉêÇë
+        } else //å¸¸æ•°cä¸å­˜åœ¨ï¼Œè¦ç”³è¯·
         {
             renum = dagnum;
 
@@ -370,7 +360,7 @@ int i;
             node_list[nodevalue].name = str;
             node_list[nodevalue].position = dagnum;
             nodevalue++;
-            if (isdef3 != -1) //½á¹ûÒÑ´æÔÚ£¬Èç¹û²»ÊÇÖ÷±ê¼ÇÒªÉ¾³ı
+            if (isdef3 != -1) //ç»“æœå·²å­˜åœ¨ï¼Œå¦‚æœä¸æ˜¯ä¸»æ ‡è®°è¦åˆ é™¤
             {
                 del(op3, dagnum - 1, isdef3);
             } else {
@@ -381,27 +371,28 @@ int i;
         }
     }
 
-    else //ÖÁÉÙÓĞ1¸ö²»ÊÇ³£Êı
-    {Dnode DN;
-           int num = -1;
+    else //è‡³å°‘æœ‰1ä¸ªä¸æ˜¯å¸¸æ•°
+    {
+        Dnode DN;
+        int num = -1;
         for (i = 0; i < dagnum; i++) {
-            if (NODE[i].oper == s) //¸ÃÔËËã·ûÓĞÁË
+            if (NODE[i].oper == s) //è¯¥è¿ç®—ç¬¦æœ‰äº†
             {
                 num = i;
                 break;
             }
         }
-       
-        if (num != -1) //ËµÃ÷ÔËËã·û±»¶¨ÒåÁË£¬¶ÁËûµÄ×óÓÒº¢×Ó
+
+        if (num != -1) //è¯´æ˜è¿ç®—ç¬¦è¢«å®šä¹‰äº†ï¼Œè¯»ä»–çš„å·¦å³å­©å­
         {
             renum = num;
-            if (NODE[num].lchild==isdef1) //Èç¹û×óº¢×ÓÊÇop1
+            if (NODE[num].lchild == isdef1) //å¦‚æœå·¦å­©å­æ˜¯op1
             {
-                if (NODE[isdef3].rchild==isdef2) //ÓÒº¢×ÓÊÇop2£¬ËµÃ÷Õâ¸öËÄÔªÊ½ÖØ¸´ÁË
+                if (NODE[isdef3].rchild == isdef2) //å³å­©å­æ˜¯op2ï¼Œè¯´æ˜è¿™ä¸ªå››å…ƒå¼é‡å¤äº†
                 {
                     NODE[num].label[NODE[num].label_num] = op3;
                     NODE[num].label_num++;
-                    if (isdef3 != -1) //½á¹ûÒÑ´æÔÚ£¬Èç¹û²»ÊÇÖ÷±ê¼ÇÒªÉ¾³ı
+                    if (isdef3 != -1) //ç»“æœå·²å­˜åœ¨ï¼Œå¦‚æœä¸æ˜¯ä¸»æ ‡è®°è¦åˆ é™¤
                     {
                         del(op3, num, isdef3);
                     } else {
@@ -411,8 +402,7 @@ int i;
                     }
                 }
             }
-        } 
-        else //¸ÃÔËËã·ûÃ»ÓĞ±»¶¨Òå£¬ĞèÒªÖØĞÂ½¨Ò»¸ö½Úµã
+        } else //è¯¥è¿ç®—ç¬¦æ²¡æœ‰è¢«å®šä¹‰ï¼Œéœ€è¦é‡æ–°å»ºä¸€ä¸ªèŠ‚ç‚¹
         {
             renum = dagnum;
             DN.num = dagnum;
@@ -423,16 +413,16 @@ int i;
             DN.label[0] = op3;
             NODE.push_back(DN);
             node_list.push_back(op3);
-            node_list[nodevalue].position=dagnum;
+            node_list[nodevalue].position = dagnum;
             nodevalue++;
             dagnum++;
-            if (isdef1 != -1) //µÚÒ»¸ö²Ù×÷Êı±»¶¨ÒåÁË
+            if (isdef1 != -1) //ç¬¬ä¸€ä¸ªæ“ä½œæ•°è¢«å®šä¹‰äº†
             {
                 NODE[dagnum - 1].lchild = isdef1;
-                if (isdef2 != -1) //Ò»¶ş¶¼±»¶¨ÒåÁË
+                if (isdef2 != -1) //ä¸€äºŒéƒ½è¢«å®šä¹‰äº†
                 {
                     NODE[dagnum - 1].rchild = isdef2;
-                } else //Ò»¶¨Òå£¬¶şÃ»ÓĞ,¸ø¶şĞÂ½¨Ò»¸ö½Úµã
+                } else //ä¸€å®šä¹‰ï¼ŒäºŒæ²¡æœ‰,ç»™äºŒæ–°å»ºä¸€ä¸ªèŠ‚ç‚¹
                 {
                     DN.num = dagnum;
                     DN.isLeaf = true;
@@ -446,7 +436,7 @@ int i;
                     dagnum++;
                     nodevalue++;
                 }
-            } else //µÚÒ»¸öÊıÃ»¶¨Òå
+            } else //ç¬¬ä¸€ä¸ªæ•°æ²¡å®šä¹‰
             {
                 DN.num = dagnum;
                 DN.isLeaf = true;
@@ -459,10 +449,10 @@ int i;
                 node_list[nodevalue].position = dagnum;
                 dagnum++;
                 nodevalue++;
-                if (isdef2 != -1) //µÚ¶ş¸öÊı¶¨ÒåÁË
+                if (isdef2 != -1) //ç¬¬äºŒä¸ªæ•°å®šä¹‰äº†
                 {
                     NODE[dagnum - 2].rchild = isdef2;
-                } else //µÚÒ»¸öÊı£¬µÚ¶ş¸öÊı£¬¶¼Ã»¶¨Òå
+                } else //ç¬¬ä¸€ä¸ªæ•°ï¼Œç¬¬äºŒä¸ªæ•°ï¼Œéƒ½æ²¡å®šä¹‰
                 {
                     DN.num = dagnum;
                     DN.isLeaf = true;
@@ -480,7 +470,7 @@ int i;
         }
     }
 
-    if (istemp(NODE[renum].label[0])) //Èç¹ûÊÇÁÙÊ±±äÁ¿£¬½»»»Î»ÖÃ
+    if (istemp(NODE[renum].label[0])) //å¦‚æœæ˜¯ä¸´æ—¶å˜é‡ï¼Œäº¤æ¢ä½ç½®
     {
         swap(NODE[renum].label[0], NODE[renum].label[NODE[renum].label_num - 1]);
     }
@@ -501,7 +491,7 @@ void swap(OPERAND& S1, OPERAND& S2)
     S2.position = S.position;
 }
 
-void optimize(int start, int end) //DAGÓÅ»¯
+void optimize(int start, int end) //DAGä¼˜åŒ–
 {
     int i = 0;
     int type;
@@ -513,11 +503,8 @@ void optimize(int start, int end) //DAGÓÅ»¯
         if (quaternion_list[i].sign == SIGN::equal) //(=,B,_A)
         {
             fuzhi(oper1, oper3);
-        }
-        else
-        {
+        } else {
             binaryoperator(s, oper1, oper2, oper3);
         }
-       
     }
 }

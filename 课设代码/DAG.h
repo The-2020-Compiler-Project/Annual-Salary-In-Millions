@@ -1,5 +1,5 @@
-#include<stdio.h>
 #include "grammatical_analysis.cpp"
+#include <stdio.h>
 using namespace std;
 
 struct Dnode {

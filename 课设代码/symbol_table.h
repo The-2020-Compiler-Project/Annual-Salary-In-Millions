@@ -10,17 +10,17 @@ enum CAT { f,
     v,
     vn,
     vf,
-    tv//临时变量 
-    };
+    tv //临时变量
+};
 //按照实际进行修改
 enum TVAL { Int,
     Double,
     String,
     Char,
-	Bool,
+    Bool,
     Array,
-    WRONG_TYPE//用于返回类型不匹配的
-    };//这部分是为了填符号表的时候确定相应的类型
+    WRONG_TYPE //用于返回类型不匹配的
+}; //这部分是为了填符号表的时候确定相应的类型
 //总表和符号表中的addr的修正
 enum TABLE {
     const_int_double,
@@ -30,8 +30,8 @@ enum TABLE {
     ainfl,
     rinfl,
     synbl
-    };
-struct ADDR{
+};
+struct ADDR {
     TABLE table;
     int position;
 };
@@ -40,10 +40,6 @@ struct TYPEL {
     TVAL tval;
     ADDR addr;
 };
-
-
-
-
 
 //总表
 struct SYNBL {
@@ -61,7 +57,6 @@ struct SYNBL {
 
 //长度表，自定义类型需要指过去
 
-
 //数组表
 struct AINFL {
     int low;
@@ -71,14 +66,12 @@ struct AINFL {
     int clen;
 };
 
-
 //结构表 暂时用不到
 struct RINFL {
     string name;
     int off;
     TYPEL* tp;
 };
-
 
 //形参表
 struct FPL {
@@ -89,7 +82,6 @@ struct FPL {
     int off; //对应的偏移地址
 };
 
-
 //函数表
 struct PFINFL {
     int level;
@@ -99,7 +91,6 @@ struct PFINFL {
     FPL* fpl_pointer;
     int data_long; //该函数中需要开辟的空间的大小 为了目标代码生成服务
 };
-
 
 //标识符表 为了方便判断是否重定义以及类型是否匹配 额外设立一个标识符表
 struct IDENTIFY {
@@ -112,15 +103,14 @@ struct IDENTIFY {
 
 //作用域栈
 
-
 //四元式符号
 enum SIGN {
     add,
     sub,
     multi,
     div_,
-    equal,//赋值 =
-    is_equal,//相当 ==
+    equal, //赋值 =
+    is_equal, //相当 ==
     not_equal,
     larger,
     smaller,
@@ -138,7 +128,6 @@ enum SIGN {
 };
 //操作符栈
 
-
 //操作数结构
 struct OPERAND {
     string name;
@@ -147,7 +136,6 @@ struct OPERAND {
 };
 //对象栈
 
-
 //四元式结构体
 struct QUATERNION {
     SIGN sign;
@@ -155,4 +143,3 @@ struct QUATERNION {
     OPERAND operand_2;
     OPERAND operand_3;
 };
-
