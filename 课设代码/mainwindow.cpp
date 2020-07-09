@@ -98,5 +98,6 @@ void MainWindow::on_saveFile_clicked()
             file.write(temp.toLatin1());
             QMessageBox::information(this, "成功", "保存文件成功");
         }
+        file.close();
     }
 }
