@@ -27,7 +27,9 @@ int main()
 
     //目标代码生成
 
-    /*optimize_list=quaternion_list;
+    optimize_list=QT;
+
+    //cout<<optimize_list.size();
 
     fcode* fcode_test = new fcode();
 
@@ -35,7 +37,7 @@ int main()
 
     cout<<"生成的目标代码为："<<endl;
 
-    fcode_test->print_fcode_array();*/
+    fcode_test->print_fcode_array();
 
     system("pause");
     return 0;

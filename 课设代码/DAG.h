@@ -20,7 +20,6 @@ Dnode::Dnode()
     label_num = 0;
     //需要给叶子节点设一个运算符
 }
-void init(); //初始化
 void divide(); //划分基本块;
 int isdefine(string op); //判断op是否被定义过
 int innode(string op); //op在node_list的位置
