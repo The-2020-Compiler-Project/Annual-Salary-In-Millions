@@ -1,38 +1,11 @@
-#include "object_code_generate.h"
+#include "mainwindow.h"
 
-int main()
+#include <QApplication>
+
+int main(int argc, char *argv[])
 {
-
-    //语法语义分析
-
-    grammar* test = new grammar();
-
-    test->begin();
-
-    cout << "generated quaternion:" << endl;
-
-    test->print_quaternion_list();
-
-    cout << endl;
-
-    //优化
-
-    divide();
-
-    cout << "optimized quaternion:" << endl;
-
-    display();
-
-    //目标代码生成
-
-    fcode* fcode_test = new fcode();
-
-    fcode_test->to_code();
-
-    cout << "object code:" << endl;
-
-    fcode_test->print_fcode_array();
-
-    system("pause");
-    return 0;
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
+    return a.exec();
 }

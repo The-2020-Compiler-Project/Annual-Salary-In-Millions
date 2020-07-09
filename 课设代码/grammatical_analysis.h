@@ -27,7 +27,7 @@ private:
     vector<token>::iterator position;
 
 public:
-    lexic_wrapper();
+    lexic_wrapper(string);
     ~lexic_wrapper();
     token getToken();
 };
@@ -39,7 +39,7 @@ private:
     int temp_operand_num = 0;
 
 public:
-    grammar();
+    grammar(string);
     ~grammar();
     void error(string err_msg);
     void getToken();
@@ -75,11 +75,6 @@ public:
     TVAL CT_type_deduction(string str); //判断常数为double还是int类型
     bool is_iT_defined_in_current_level(string name); //判断标识符在当前作用域中是否已经定义过
     int change_type_to_length(TVAL tval); //获得类型的字节长度
-    void print_quaternion_list(); //输出四元式
+    string print_quaternion_list(); //输出四元式
     string change_sign_to_string(SIGN sign_enum); //将枚举型的sign转为string
-
-    // 供四元式优化测试
-    vector<SYNBL> get_synbl_list();
-    vector<QUATERNION> get_quaternion_list();
-    vector<double> get_const_int_double_list();
 };

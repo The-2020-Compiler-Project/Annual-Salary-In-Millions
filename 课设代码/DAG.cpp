@@ -74,11 +74,10 @@ void opti_Quaternion() //生成优化后的四元式
         }
     }
 }
-void display() //输出优化后的四元式
+string display() //输出优化后的四元式
 {
-    int i;
-
-    for (i = 0; i < QT.size(); i++) {
+    string result;
+    for (int i = 0; i < QT.size(); i++) {
         QUATERNION q = QT[i];
         string sign = sign_to_string(q.sign);
         string op1 = q.operand_1.name;
@@ -90,8 +89,9 @@ void display() //输出优化后的四元式
         string op3 = q.operand_3.name;
         if (q.operand_3.name == "")
             op3 = "_";
-        cout << '(' << sign << ',' << op1 << ',' << op2 << ',' << op3 << ')' << endl;
+        result+='(' + sign + ',' + op1 + ',' + op2 + ',' + op3 + ')'+'\n';
     }
+    return result;
 }
 string sign_to_string(SIGN sign_enum) //字符转字符串
 {

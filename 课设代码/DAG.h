@@ -29,4 +29,4 @@ void binaryoperator(SIGN s, OPERAND op1, OPERAND op2, OPERAND op3); //双目运�
 void swap(OPERAND& S1, OPERAND& S2); //交换
 void optimize(int start, int end); //DAG优化
 string sign_to_string(SIGN sign_enum); //字符转字符串
-void display(); //输出优化后的四元式
+string display(); //输出优化后的四元式

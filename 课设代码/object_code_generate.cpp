@@ -11,6 +11,7 @@ OPERAND RDL;
 
 int fcode::ADDR = 0;
 vector<fcode> fcode_arrary; //存放生成的目标指令
+
 void fcode::fill_addr(int p)
 {
     ostringstream oss;
@@ -317,9 +318,11 @@ void fcode::to_code()
         }
     }
 }
-void fcode::print_fcode_array()
+string fcode::print_fcode_array()
 {
+    string result;
     for (unsigned i = 0; i < fcode_arrary.size(); i++) {
-        cout << fcode_arrary[i].OP1 << ' ' << fcode_arrary[i].OP2 << ',' << fcode_arrary[i].OP3 << endl;
+        result+= fcode_arrary[i].OP1 + ' ' + fcode_arrary[i].OP2 + ',' + fcode_arrary[i].OP3 +'\n';
     }
+    return result;
 }

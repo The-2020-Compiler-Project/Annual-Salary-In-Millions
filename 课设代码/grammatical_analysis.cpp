@@ -19,9 +19,9 @@ vector<int> LENL;
 vector<SYNBL> synbl_list;
 vector<int> current_level_stack;
 
-lexic_wrapper::lexic_wrapper()
+lexic_wrapper::lexic_wrapper(string para)
 {
-    lex = new lexic();
+    lex = new lexic(para);
     lex->open_file();
     isSuccess = lex->lexic_analyze();
     lex->close_file();
@@ -44,21 +44,13 @@ token lexic_wrapper::getToken()
 }
 
 // 对语法分析类内函数的定义
-grammar::grammar()
+grammar::grammar(string para)
 {
-    lexic = new lexic_wrapper();
+    lexic = new lexic_wrapper(para);
 }
 grammar::~grammar()
 {
     delete lexic;
-}
-void grammar::error(string err_msg = "")
-{
-    err_msg_list.push_back(err_msg);
-    cout << err_msg.back();
-    cout << "unexpected word: " << w.token_value << endl;
-    system("pause");
-    //exit(1);
 }
 void grammar::getToken()
 {
@@ -72,6 +64,19 @@ OPERAND grammar::operand_temp_produce()
     temp.name = s;
     return temp; //产生的临时变量的指针未初始化，由填符号表时来确定
 }
+
+void grammar::error(string err_msg = "")
+{
+    string info;
+    err_msg_list.push_back(err_msg);
+    for (unsigned i = 0; i < err_msg_list.size(); i++) {
+        info += err_msg_list[i];
+    }
+    info += "unexpected word: " + w.token_value + '\n' + "exiting...";
+    cout << info;
+    exit(1);
+}
+
 void grammar::begin()
 {
     getToken();
@@ -1245,7 +1250,7 @@ bool grammar::is_iT_defined_in_current_level(string name)
     return false;
 }
 
-//获得类型的字�?
+//获得类型的字长
 int grammar::change_type_to_length(TVAL tval)
 {
     switch (tval) {
@@ -1270,9 +1275,10 @@ int grammar::change_type_to_length(TVAL tval)
     }
 }
 
-//输出四元
-void grammar::print_quaternion_list()
+//输出四元式
+string grammar::print_quaternion_list()
 {
+    string result;
     for (int i = 0; i < quaternion_list.size(); i++) {
         QUATERNION q = quaternion_list[i];
         string sign = change_sign_to_string(q.sign);
@@ -1285,8 +1291,9 @@ void grammar::print_quaternion_list()
         string three = q.operand_3.name;
         if (q.operand_3.name == "")
             three = "_";
-        cout << '(' << sign << ',' << one << ',' << two << ',' << three << ')' << endl;
+        result += '(' + sign + ',' + one + ',' + two + ',' + three + ')' + '\n';
     }
+    return result;
 }
 
 //将枚举型的sign转为string

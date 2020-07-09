@@ -6,7 +6,7 @@
 
 class fcode {
 public:
-    void print_fcode_array();
+    string print_fcode_array();
     void to_code();
     void add(string op, string op1, string op2);
     void add_not_label(string op, string op1, string op2); //不带标号的移动
